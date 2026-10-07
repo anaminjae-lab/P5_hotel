@@ -1,0 +1,174 @@
+@startuml
+title P5 – Sistema de Reservaciones de un Hotel
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package modelo {
+  interface Reservable {
+    {static} +TASA_IMPUESTO : double
+    +clave() : NumeroHabitacion
+    +nombre() : String
+    +precioBase() : double
+    +tarifa(u : int) : double
+    +tarifaConImpuesto(u : int) : double
+    {static} +porNombre() : Comparator
+  }
+  interface ConVista {
+    +vista() : String
+    +descripcionCorta() : String
+  }
+  interface Accesible {
+    +adaptaciones() : String
+    +descripcionCorta() : String
+  }
+  abstract class Habitacion <<sealed>> {
+    -clave : NumeroHabitacion
+    -nombre : String
+    -precioBase : double
+    -creadoEn : LocalDateTime
+    -cotizaciones : int <<transient>>
+    +tarifa(u : int) : double <<final>>
+    {abstract} #calcularTarifa(u : int) : double
+    {abstract} +copiar() : Habitacion
+  }
+  class "Habitacion.Sencilla" as Sencilla <<static final>> {
+    {static} +PREFIJO : String = "SEN"
+    -camas : int
+    #calcularTarifa(u : int) : double
+    +copiar() : Sencilla
+  }
+  class "Habitacion.Doble" as Doble <<static final>> {
+    {static} +PREFIJO : String = "DOB"
+    -piso : int
+    #calcularTarifa(u : int) : double
+    +copiar() : Doble
+  }
+  class "Habitacion.Suite" as Suite <<static final>> {
+    {static} +PREFIJO : String = "SUI"
+    -metros : int
+    #calcularTarifa(u : int) : double
+    +copiar() : Suite
+  }
+  class NumeroHabitacion <<record>> {
+    prefijo : String
+    numero : int
+    {static} +siguiente(prefijo : String) : NumeroHabitacion
+    {static} +parse(texto : String) : NumeroHabitacion
+  }
+  enum Nivel {
+    ESTANDAR
+    FRECUENTE
+    CONVENIO
+    +aplicar(monto : double) : double
+  }
+  enum Estado {
+    ABIERTA
+    EN_CURSO
+    CERRADA
+    CANCELADA
+    +permiteTransicionA(d : Estado) : boolean
+  }
+  class Huesped <<Externalizable>> {
+    -id : int
+    -nombre : String
+    -correo : String
+    -nivel : Nivel
+  }
+  class Reservacion {
+    -id : int
+    -fecha : LocalDate
+    -estado : Estado
+    +agregar(e : Habitacion, u : int) : Linea
+    +cambiarEstado(d : Estado)
+    +total() : double
+  }
+  class "Reservacion.Linea" as Linea <<inner>> {
+    -unidades : int
+    +importe() : double
+  }
+  class Inventario {
+    +agregar(e : Habitacion...)
+    +filtrar(r : Regla) : List
+    {static} +porTarifa(u : int) : Comparator
+    +resumen() : String
+  }
+  class "Inventario.Iterador" as Iterador <<private inner>>
+}
+
+package funcional {
+  interface "Regla<T>" as Regla <<functional>> {
+    +evaluar(t : T) : boolean
+    +y(o) : Regla
+    +o(o) : Regla
+    +negar() : Regla
+  }
+  interface "FabricaElemento<E extends Habitacion, A>" as Fabrica <<functional>> {
+    +crear(nombre, precio, atributo : A) : E
+  }
+}
+
+package concurrencia {
+  abstract class TareaPeriodica implements Runnable {
+    -activa : boolean <<volatile>>
+    +iniciar(nombre : String)
+    +detener()
+    {abstract} #ejecutarCiclo()
+  }
+}
+
+package eventos {
+  interface OyenteEvento <<functional>>
+  class Evento <<record>>
+}
+
+package persistencia {
+  interface "Repositorio<T,K>" as Repositorio
+  class RepositorioHabitacionSQLite
+  class RepositorioHuespedSQLite
+  class RepositorioReservacionSQLite
+  class ConexionSQLite
+  class Respaldo
+}
+
+package servicio {
+  class Hotel {
+    +registrar(f : FabricaElemento, ...) : E
+    +abrir(id : int) : Reservacion
+    +revisar() : int
+    +iniciarMonitor(ms : long)
+  }
+  class "Hotel.MonitorSalidas" as Monitor <<inner>>
+}
+
+Habitacion ..|> Reservable
+Sencilla --|> Habitacion
+Habitacion +-- Sencilla
+Sencilla ..|> ConVista
+Doble --|> Habitacion
+Habitacion +-- Doble
+Doble ..|> Accesible
+Suite --|> Habitacion
+Habitacion +-- Suite
+Suite ..|> ConVista
+Suite ..|> Accesible
+Reservacion *-- "1..*" Linea
+Reservacion +-- Linea
+Linea --> "1" Habitacion
+Reservacion --> "1" Huesped
+Reservacion --> Estado
+Huesped --> Nivel
+Inventario o-- "0..*" Habitacion
+Inventario +-- Iterador
+Inventario ..> Regla
+Fabrica ..> Habitacion
+Hotel +-- Monitor
+Monitor --|> TareaPeriodica
+Hotel o-- "0..*" OyenteEvento
+Hotel --> Inventario
+Hotel --> Repositorio
+RepositorioHabitacionSQLite ..|> Repositorio
+RepositorioHuespedSQLite ..|> Repositorio
+RepositorioReservacionSQLite ..|> Repositorio
+RepositorioReservacionSQLite --> ConexionSQLite
+OyenteEvento ..> Evento
+@enduml

@@ -48,7 +48,21 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
     /** Constructor completo (también usado al reconstruir desde la base de datos). */
     public Reservacion(int id, Huesped huesped, LocalDate fecha) {
         // TODO E07: Validar id > 0, actor y fecha no nulos; asignar y sincronizar SECUENCIA con accumulateAndGet(id, Math::max).
-        throw new UnsupportedOperationException("TODO E07");
+
+        if (id <= 0) {
+            throw new ReglaNegocioException(
+                    "El ID de la reservación debe ser mayor que cero"
+            );
+        }
+        this.id = id;
+        this.huesped = Objects.requireNonNull(
+                huesped, "El huésped no puede estar vacio"
+        );
+        this.fecha = Objects.requireNonNull(
+                fecha, "La fecha no puede estar vacia"
+        );
+        SECUENCIA.accumulateAndGet(id, Math::max);
+        //throw new UnsupportedOperationException("TODO E07");
     }
 
     public int id() {
@@ -70,18 +84,52 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
     /** Agrega una línea; sólo es posible mientras está ABIERTA y sin repetir habitación. */
     public synchronized Linea agregar(Habitacion elemento, int unidades) {
         // TODO E07: Exigir estado ABIERTA, rechazar elementos repetidos (stream anyMatch), crear la Linea interna y añadirla.
-        throw new UnsupportedOperationException("TODO E07");
+        if (estado != Estado.ABIERTA) {
+            throw new ReglaNegocioException(
+                    "Solo se pueden agregar habitaciones a una reservación abierta"
+            );
+        }
+        Objects.requireNonNull(elemento, "La habitación no puede ser nula");
+        if (lineas.stream().anyMatch(
+                linea -> linea.elemento().equals(elemento))) {
+            throw new ReglaNegocioException(
+                    "La habitación ya está agregada a la reservación"
+            );
+        }
+        Linea nuevaLinea = new Linea(elemento, unidades);
+        lineas.add(nuevaLinea);
+        return nuevaLinea;
+       // throw new UnsupportedOperationException("TODO E07");
     }
 
     /** Quita la línea del habitación indicado (sólo en estado ABIERTA). */
     public synchronized boolean quitar(NumeroHabitacion clave) {
         // TODO E07: Exigir estado ABIERTA y eliminar con removeIf la línea cuyo elemento tenga esa clave.
-        throw new UnsupportedOperationException("TODO E07");
+        if (estado != Estado.ABIERTA) {
+            throw new ReglaNegocioException(
+                    "Solo se pueden quitar habitaciones de una reservación abierta"
+            );
+        }
+        return lineas.removeIf(
+                linea -> linea.elemento().clave().equals(clave)
+        );
+       // throw new UnsupportedOperationException("TODO E07");
     }
 
     public synchronized void cambiarEstado(Estado destino) {
         // TODO E07: Validar la transición con permiteTransicionA y exigir al menos una línea para pasar a EN_CURSO.
-        throw new UnsupportedOperationException("TODO E07");
+        if (!estado.permiteTransicionA(destino)) {
+            throw new ReglaNegocioException(
+                    "La transición de estado no está permitida"
+            );
+        }
+        if (destino == Estado.EN_CURSO && lineas.isEmpty()) {
+            throw new ReglaNegocioException(
+                    "La reservación debe tener al menos una habitación para iniciar"
+            );
+        }
+        this.estado = destino;
+        //throw new UnsupportedOperationException("TODO E07");
     }
 
     public void iniciar() {
@@ -108,14 +156,27 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
     /** Suma de subtotales sin descuento. */
     public synchronized double subtotal() {
         // TODO E08: Sumar los subtotales de las líneas con mapToDouble y redondear a 2 decimales.
-        throw new UnsupportedOperationException("TODO E08");
+        // Obtiene el subtotal de cada línea y suma todos los resultados.
+        double suma = lineas.stream()
+                .mapToDouble(Linea::subtotal)
+                .sum();
+        return redondear(suma);
+
+        //throw new UnsupportedOperationException("TODO E08");
     }
 
     /** Total con el descuento del nivel del huesped. */
     public synchronized double total() {
         // TODO E08: Sumar los importes de las líneas (ya con descuento) y redondear a 2 decimales.
-        throw new UnsupportedOperationException("TODO E08");
+        // Obtiene el importe con descuento de cada línea y los suma.
+        double suma = lineas.stream()
+                .mapToDouble(Linea::importe)
+                .sum();
+        // Redondea la suma a dos decimales.
+        return redondear(suma);
     }
+
+        //throw new UnsupportedOperationException("TODO E08");
 
     public long diasDesde(LocalDate hoy) {
         return ChronoUnit.DAYS.between(fecha, hoy);
@@ -149,7 +210,17 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
 
         private Linea(Habitacion elemento, int unidades) {
             // TODO E07: Validar unidades > 0 y asignar los campos.
-            throw new UnsupportedOperationException("TODO E07");
+
+            if (unidades <= 0) {
+                throw new ReglaNegocioException(
+                        "El número de noches debe ser mayor que cero"
+                );
+            }
+            this.elemento = Objects.requireNonNull(
+                    elemento, "La habitación no puede ser nula"
+            );
+            this.unidades = unidades;
+           // throw new UnsupportedOperationException("TODO E07");
         }
 
         public Habitacion elemento() {
@@ -167,7 +238,9 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
         /** Importe con el descuento del nivel del huesped de la envolvente. */
         public double importe() {
             // TODO E08: Usar Reservacion.this.huesped.nivel().aplicar(subtotal()).
-            throw new UnsupportedOperationException("TODO E08");
+            return Reservacion.this.huesped.nivel().aplicar(subtotal());
+
+           // throw new UnsupportedOperationException("TODO E08");
         }
 
         public Reservacion contenedor() {

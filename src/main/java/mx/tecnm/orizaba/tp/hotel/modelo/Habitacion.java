@@ -51,8 +51,14 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
     /** Constructor para objetos reconstruidos (persistencia) con clave conocida. */
     protected Habitacion(NumeroHabitacion clave, String nombre, double precioBase) {
+        this.clave = Objects.requireNonNull(
+                clave, "La clave no puede ser nula");
+        NumeroHabitacion.registrar(clave);
+        setNombre(nombre);
+        setPrecioBase(precioBase);
+
         // TODO E04: Asignar la clave (no nula), registrarla en NumeroHabitacion.registrar y validar nombre y precio mediante los setters.
-        throw new UnsupportedOperationException("TODO E04");
+        //throw new UnsupportedOperationException("TODO E04");
     }
 
     public static int instanciasCreadas() {
@@ -84,19 +90,42 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
     public final void setNombre(String nombre) {
         // TODO E04: Rechazar nombres nulos o en blanco (ReglaNegocioException); guardar el nombre sin espacios extremos.
-        throw new UnsupportedOperationException("TODO E04");
+        if (nombre == null || nombre.isBlank()) {
+            throw new ReglaNegocioException("El nombre no puede estar vacío");
+        }
+        this.nombre = nombre.strip();
+        //throw new UnsupportedOperationException("TODO E04");
     }
 
     public final void setPrecioBase(double precioBase) {
         // TODO E04: Rechazar precios negativos, NaN o infinitos (ReglaNegocioException).
-        throw new UnsupportedOperationException("TODO E04");
+        if (precioBase < 0 || !Double.isFinite(precioBase)) {
+            throw new ReglaNegocioException(
+                    "El precio base debe ser mayor o igual a cero"
+            );
+        }
+        // Guarda el precio válido en el campo de esta habitación.
+        this.precioBase = precioBase;
+
+        //throw new UnsupportedOperationException("TODO E04");
     }
 
     /** Método plantilla: valida, contabiliza y redondea; la variación la aporta cada subtipo. */
     @Override
     public final double tarifa(int unidades) {
         // TODO E04: Validar unidades > 0 (ReglaNegocioException), incrementar cotizaciones y devolver calcularTarifa redondeada a 2 decimales.
-        throw new UnsupportedOperationException("TODO E04");
+        if (unidades <= 0) {
+            throw new ReglaNegocioException(
+                    "El número de noches debe ser mayor que cero"
+            );
+        }
+        cotizaciones++;
+        double importe = calcularTarifa(unidades);
+        // Redondea el importe a dos decimales y lo devuelve.
+        return Math.round(importe * 100.0) / 100.0;
+
+
+       // throw new UnsupportedOperationException("TODO E04");
     }
 
     /** Punto de variación del Template Method. */
@@ -149,7 +178,13 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
         private static int validar(int camas) {
             // TODO E05: Validar: camas >= 1 && camas <= 2 (si no se cumple: ReglaNegocioException "Una habitación sencilla tiene 1 o 2 camas").
-            throw new UnsupportedOperationException("TODO E05");
+            if (camas < 1 || camas > 2) {
+                throw new ReglaNegocioException(
+                        "Una habitación sencilla tiene 1 o 2 camas"
+                );
+            }
+            return camas;
+            //throw new UnsupportedOperationException("TODO E05");
         }
 
         public int camas() {
@@ -159,14 +194,16 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         @Override
         protected double calcularTarifa(int unidades) {
             // TODO E05: Sencilla: tarifa lineal por noche. Fórmula: precioBase() * unidades
-            throw new UnsupportedOperationException("TODO E05");
+            return precioBase() * unidades;
+            //throw new UnsupportedOperationException("TODO E05");
         }
 
         /** Retorno covariante: devuelve Sencilla, no Habitacion. */
         @Override
         public Sencilla copiar() {
             // TODO E05: Crear un nuevo Sencilla con el mismo nombre, precio y atributo (clave nueva).
-            throw new UnsupportedOperationException("TODO E05");
+            return new Sencilla(nombre(), precioBase(), camas);
+            //throw new UnsupportedOperationException("TODO E05");
         }
 
         @Override
@@ -204,7 +241,15 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
         private static int validar(int piso) {
             // TODO E05: Validar: piso >= 1 && piso <= 10 (si no se cumple: ReglaNegocioException "El piso debe estar entre 1 y 10").
-            throw new UnsupportedOperationException("TODO E05");
+
+            if (piso < 1 || piso > 10) {
+                throw new ReglaNegocioException(
+                        "El piso debe estar entre 1 y 10"
+                );
+            }
+            return piso;
+
+            //throw new UnsupportedOperationException("TODO E05");
         }
 
         public int piso() {
@@ -214,14 +259,22 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         @Override
         protected double calcularTarifa(int unidades) {
             // TODO E05: Doble: 20 % adicional en pisos superiores al quinto. Fórmula: precioBase() * unidades * (piso > 5 ? 1.2 : 1.0)
-            throw new UnsupportedOperationException("TODO E05");
+
+            double importe = precioBase() * unidades;
+            if (piso > 5) {
+                importe = importe * 1.2;
+            }
+            return importe;
+           // throw new UnsupportedOperationException("TODO E05");
         }
 
         /** Retorno covariante: devuelve Doble, no Habitacion. */
         @Override
         public Doble copiar() {
             // TODO E05: Crear un nuevo Doble con el mismo nombre, precio y atributo (clave nueva).
-            throw new UnsupportedOperationException("TODO E05");
+
+            return new Doble(nombre(), precioBase(), piso());
+           // throw new UnsupportedOperationException("TODO E05");
         }
 
         @Override
@@ -259,7 +312,12 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
         private static int validar(int metros) {
             // TODO E05: Validar: metros > 0 (si no se cumple: ReglaNegocioException "La superficie debe ser positiva").
-            throw new UnsupportedOperationException("TODO E05");
+            if (metros <= 0) {
+                throw new ReglaNegocioException(
+                        "La superficie debe ser positiva");
+                // throw new UnsupportedOperationException("TODO E05");
+            }
+            return metros;
         }
 
         public int metros() {
@@ -268,15 +326,21 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
         @Override
         protected double calcularTarifa(int unidades) {
+            double importe = precioBase() * unidades;
+            if (unidades >= 5) {
+                importe = importe * 0.9;
+            }
+            return importe;
             // TODO E05: Suite: 10 % de descuento a partir de 5 noches. Fórmula: unidades >= 5 ? precioBase() * unidades * 0.9 : precioBase() * unidades
-            throw new UnsupportedOperationException("TODO E05");
+            //throw new UnsupportedOperationException("TODO E05");
         }
 
         /** Retorno covariante: devuelve Suite, no Habitacion. */
         @Override
         public Suite copiar() {
             // TODO E05: Crear un nuevo Suite con el mismo nombre, precio y atributo (clave nueva).
-            throw new UnsupportedOperationException("TODO E05");
+            return new Suite(nombre(), precioBase(), metros());
+            //throw new UnsupportedOperationException("TODO E05");
         }
 
         @Override
@@ -293,7 +357,10 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         @Override
         public String descripcionCorta() {
             // TODO E05: Combinar ConVista.super.descripcionCorta() y Accesible.super.descripcionCorta() separados por " | ".
-            throw new UnsupportedOperationException("TODO E05");
+            return ConVista.super.descripcionCorta() + " | "
+                    + Accesible.super.descripcionCorta();
+
+           // throw new UnsupportedOperationException("TODO E05");
         }
 
         @Override

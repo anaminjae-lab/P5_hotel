@@ -24,13 +24,19 @@ public interface Reservable {
 
     /** Método por defecto (extensión de la interfaz sin romper implementaciones). */
     default double tarifaConImpuesto(int unidades) {
+        double total = tarifa(unidades) * (1 + TASA_IMPUESTO);
+        return Math.round(total * 100.0) / 100.0;
         // TODO E02: Aplicar TASA_IMPUESTO a tarifa(unidades) y redondear a 2 decimales.
-        throw new UnsupportedOperationException("TODO E02");
+      //  throw new UnsupportedOperationException("TODO E02");
     }
 
     /** Método estático de interfaz: comparador por nombre (referencia a método de objeto arbitrario). */
     static Comparator<Reservable> porNombre() {
         // TODO E02: Usar Comparator.comparing(Reservable::nombre, String.CASE_INSENSITIVE_ORDER).
-        throw new UnsupportedOperationException("TODO E02");
+        return Comparator.comparing(
+                Reservable::nombre,
+                String.CASE_INSENSITIVE_ORDER
+        );
+        //throw new UnsupportedOperationException("TODO E02");
     }
 }

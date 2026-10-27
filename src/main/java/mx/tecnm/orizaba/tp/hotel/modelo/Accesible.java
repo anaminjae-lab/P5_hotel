@@ -12,6 +12,8 @@ public interface Accesible {
 
     default String descripcionCorta() {
         // TODO E05: Devolver "Accesibilidad: " concatenado con el valor de adaptaciones().
-        throw new UnsupportedOperationException("TODO E05");
+        return "Accesibilidad: " + adaptaciones();
+
+        //throw new UnsupportedOperationException("TODO E05");
     }
 }

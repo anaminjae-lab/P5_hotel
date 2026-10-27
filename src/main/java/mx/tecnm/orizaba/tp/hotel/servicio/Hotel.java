@@ -265,12 +265,53 @@ public class Hotel implements AutoCloseable {
      */
     public synchronized int revisar() {
         // TODO E12: Recorrer los registros y aplicar las dos reglas con un switch sobre el estado.
-        throw new UnsupportedOperationException("TODO E12");
+        // Consultar una sola vez la fecha proporcionada por el reloj.
+        LocalDate hoy = reloj.get();
+        int acciones = 0;
+        for (Reservacion reservacion : registros.values()) {
+            long dias = reservacion.diasDesde(hoy);
+            switch (reservacion.estado()) {
+                case ABIERTA -> {
+                    // Cancelar únicamente si está vacía y tiene al menos un día.
+                    if (reservacion.lineas().isEmpty() && dias >= 1) {
+                        // Utilizar el método del servicio para cambiar el estado.
+                        cancelar(reservacion.id());
+                        acciones++;
+                    }
+                }
+                case EN_CURSO -> {
+                    // Alertar si supera el plazo y todavía no había sido alertada.
+                    if (dias > PLAZO_DIAS
+                            && alertados.add(reservacion.id())) {
+                        publicar(
+                                TipoEvento.ALERTA,
+                                "Reservación " + reservacion.id()
+                                        + " excedió el plazo de "
+                                        + PLAZO_DIAS + " días"
+                        );
+                        acciones++;
+                    }
+                }
+                // Las reservaciones terminadas no requieren ninguna acción.
+                case CERRADA, CANCELADA -> {
+                }
+            }
+        }
+        return acciones;
+        //throw new UnsupportedOperationException("TODO E12");
     }
 
     public synchronized void iniciarMonitor(long periodoMs) {
         // TODO E12: Crear el monitor interno (new MonitorSalidas(periodoMs)) e iniciarlo con un nombre de hilo descriptivo.
-        throw new UnsupportedOperationException("TODO E12");
+        // Evitar crear otro monitor si ya hay uno activo.
+        if (monitor != null && monitor.activa()) {
+            throw new IllegalStateException("El monitor ya está activo");
+        }
+        // Crear el monitor con el tiempo de pausa entre revisiones.
+        monitor = new MonitorSalidas(periodoMs);
+        // Arrancar su hilo con un nombre que permita identificarlo.
+        monitor.iniciar("MonitorSalidas-Hotel");
+       // throw new UnsupportedOperationException("TODO E12");
     }
 
     public void detenerMonitor() throws InterruptedException {
@@ -299,7 +340,8 @@ public class Hotel implements AutoCloseable {
         @Override
         protected void ejecutarCiclo() {
             // TODO E12: Delegar en la envolvente: Hotel.this.revisar().
-            throw new UnsupportedOperationException("TODO E12");
+            Hotel.this.revisar();
+            //throw new UnsupportedOperationException("TODO E12");
         }
     }
 

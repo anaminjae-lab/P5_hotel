@@ -12,6 +12,7 @@ public interface ConVista {
 
     default String descripcionCorta() {
         // TODO E05: Devolver "Vista: " concatenado con el valor de vista().
-        throw new UnsupportedOperationException("TODO E05");
+        return "Vista: " + vista();
+        //throw new UnsupportedOperationException("TODO E05");
     }
 }

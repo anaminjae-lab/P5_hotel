@@ -28,7 +28,10 @@ public enum Nivel {
     /** Aplica el descuento del nivel a un monto, redondeando a 2 decimales. */
     public double aplicar(double monto) {
         // TODO E06: Restar el porcentaje de descuento al monto y redondear a 2 decimales.
-        throw new UnsupportedOperationException("TODO E06");
+        double total = monto * (1 - descuento);
+        // Redondea el resultado a dos decimales y lo devuelve.
+        return Math.round(total * 100.0) / 100.0;
+      //  throw new UnsupportedOperationException("TODO E06");
     }
 
     @Override

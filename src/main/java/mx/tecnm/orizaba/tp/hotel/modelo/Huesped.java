@@ -27,7 +27,17 @@ public class Huesped implements Externalizable {
 
     public Huesped(int id, String nombre, String correo, Nivel nivel) {
         // TODO E06: Validar id > 0 y asignar nombre, correo y nivel mediante sus setters.
-        throw new UnsupportedOperationException("TODO E06");
+        if (id <= 0) {
+            throw new ReglaNegocioException(
+                    "La ID del huésped debe ser mayor que cero"
+            );
+        }
+        this.id = id;
+        setNombre(nombre);
+        setCorreo(correo);
+        setNivel(nivel);
+
+        //throw new UnsupportedOperationException("TODO E06");
     }
 
     /** Encadenamiento de constructores: nivel por omisión. */
@@ -53,12 +63,24 @@ public class Huesped implements Externalizable {
 
     public final void setNombre(String nombre) {
         // TODO E06: Rechazar nombre nulo o en blanco.
-        throw new UnsupportedOperationException("TODO E06");
+        if (nombre == null || nombre.isBlank()) {
+            throw new ReglaNegocioException(
+                    "El nombre del huésped no puede estar vacío"
+            );
+        }
+        this.nombre = nombre;
+       // throw new UnsupportedOperationException("TODO E06");
     }
 
     public final void setCorreo(String correo) {
         // TODO E06: Validar el correo con el patrón CORREO y guardarlo en minúsculas.
-        throw new UnsupportedOperationException("TODO E06");
+        if (correo == null || !CORREO.matcher(correo).matches()) {
+            throw new ReglaNegocioException(
+                    "El correo del huésped no es válido"
+            );
+        }
+        this.correo = correo.toLowerCase(java.util.Locale.ROOT);
+        //throw new UnsupportedOperationException("TODO E06");
     }
 
     public final void setNivel(Nivel nivel) {
@@ -67,14 +89,30 @@ public class Huesped implements Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput salida) throws IOException {
+        salida.writeInt(id);
+        salida.writeUTF(nombre);
+        salida.writeUTF(correo);
+        salida.writeUTF(nivel.name());
         // TODO E14: Escribir id, nombre, correo y el nombre del nivel (writeInt / writeUTF).
-        throw new UnsupportedOperationException("TODO E14");
+        //throw new UnsupportedOperationException("TODO E14");
     }
 
     @Override
     public void readExternal(ObjectInput entrada) throws IOException {
         // TODO E14: Leer en el mismo orden en que se escribió y reconstruir el nivel con Nivel.valueOf.
-        throw new UnsupportedOperationException("TODO E14");
+        // Recupera el identificador entero.
+        int idLeido = entrada.readInt();
+        String nombreLeido = entrada.readUTF();
+        String correoLeido = entrada.readUTF();
+        Nivel nivelLeido = Nivel.valueOf(entrada.readUTF());
+        if (idLeido <= 0) {
+            throw new IOException("ID de huésped inválido");
+        }
+        this.id = idLeido;
+        setNombre(nombreLeido);
+        setCorreo(correoLeido);
+        setNivel(nivelLeido);
+        //throw new UnsupportedOperationException("TODO E14");
     }
 
     @Override

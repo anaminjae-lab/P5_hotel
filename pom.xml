@@ -18,6 +18,13 @@
       <artifactId>sqlite-jdbc</artifactId>
       <version>3.46.1.3</version>
     </dependency>
+
+    <!-- FlatLaf interfaz Swing -->
+    <dependency>
+      <groupId>com.formdev</groupId>
+      <artifactId>flatlaf</artifactId>
+      <version>3.5.4</version>
+    </dependency>
     <!-- Ejemplo JavaFX (descomenta si eliges JavaFX):
     <dependency>
       <groupId>org.openjfx</groupId>

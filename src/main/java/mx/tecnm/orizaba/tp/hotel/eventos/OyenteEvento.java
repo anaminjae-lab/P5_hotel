@@ -15,6 +15,14 @@ public interface OyenteEvento {
     /** Composición secuencial de oyentes (función de orden superior). */
     default OyenteEvento luego(OyenteEvento siguiente) {
         // TODO E11: Devolver una lambda que notifique primero a this y después a siguiente.
-        throw new UnsupportedOperationException("TODO E11");
+        return evento -> {
+
+            // Primero notificamos al observador actual.
+            this.notificar(evento);
+
+            // Después notificamos al siguiente observador.
+            siguiente.notificar(evento);
+        };
+        //throw new UnsupportedOperationException("TODO E11");
     }
 }

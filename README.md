@@ -90,7 +90,7 @@ Después, abre `target/reports/apidocs/index.html` en el navegador (la ubicació
 
 ## Diagramas y documentación adicional
 
-- `diagramas/modelo_actualizado.puml`: diagrama UML actualizado del modelo.
+- `diagramas/modelo_actualizado.png`: diagrama UML actualizado del modelo.
 - `diagramas/modelo.puml`: diagrama incluido originalmente en el proyecto.
 - `BITACORA_IA.md`: registro del uso de herramientas de inteligencia artificial durante el desarrollo.
 - `README.md`: guía de instalación, ejecución y organización del proyecto.
@@ -154,4 +154,4 @@ La documentación HTML está disponible en
 [docs/javadoc/index.html](docs/javadoc/index.html).
 
 Para consultarla, descarga el repositorio y abre
-`docs/javadoc/index.html` en tu navegador.
+`docs/javadoc/index.html` en tu navegador.m

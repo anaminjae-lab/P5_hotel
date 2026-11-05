@@ -15,18 +15,33 @@ import java.util.Optional;
  */
 public interface Repositorio<T, K> {
 
+    /** Guarda o actualiza una entidad. */
     void guardar(T entidad);
 
+    /** @return entidad encontrada, si existe */
     Optional<T> buscar(K clave);
 
+    /** @return lista de todas las entidades almacenadas */
     List<T> todos();
 
+    /** @return true si la entidad fue eliminada */
     boolean eliminar(K clave);
 
+    /**
+     * Comprueba si existe una entidad con la clave indicada.
+     *
+     * @param clave identificador de la entidad
+     * @return true si la entidad existe
+     */
     default boolean existe(K clave) {
         return buscar(clave).isPresent();
     }
 
+    /**
+     * Guarda todas las entidades de una colección.
+     *
+     * @param entidades entidades que se desean guardar
+     */
     default void guardarTodos(Iterable<? extends T> entidades) {
         entidades.forEach(this::guardar);
     }
@@ -34,6 +49,13 @@ public interface Repositorio<T, K> {
     /** Convierte la fila actual de un {@link ResultSet} en un objeto. */
     @FunctionalInterface
     interface MapeadorFila<R> {
+        /**
+         * Convierte una fila SQL en un objeto.
+         *
+         * @param rs fila del resultado SQL
+         * @return objeto reconstruido
+         * @throws SQLException si ocurre un error SQL
+         */
         R mapear(ResultSet rs) throws SQLException;
     }
 }

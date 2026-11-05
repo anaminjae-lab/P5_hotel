@@ -22,16 +22,34 @@ import java.util.List;
  */
 public final class Respaldo {
 
+    /** Identificador utilizado para validar el formato del respaldo. */
     public static final String ENCABEZADO = "Respaldo Hotel v1";
 
     private Respaldo() {
     }
 
-    /** Contenido recuperado de un respaldo. */
+    /**
+     * Representa los datos recuperados de un respaldo.
+     *
+     * @param encabezado identificador del formato del respaldo
+     * @param fecha fecha y hora en que se generó
+     * @param catalogo inventario de habitaciones
+     * @param huespeds lista de huéspedes
+     * @param registros lista de reservaciones
+     */
     public record Contenido(String encabezado, LocalDateTime fecha, Inventario catalogo,
                             List<Huesped> huespeds, List<Reservacion> registros) {
     }
 
+    /**
+     * Exporta un respaldo binario de los datos del hotel.
+     *
+     * @param archivo ruta donde se guardará el respaldo
+     * @param catalogo inventario de habitaciones
+     * @param huespeds colección de huéspedes
+     * @param registros colección de reservaciones
+     * @throws IOException si ocurre un error de escritura
+     */
     public static void exportar(Path archivo, Inventario catalogo, Collection<Huesped> huespeds,
                                 Collection<Reservacion> registros) throws IOException {
 
@@ -53,6 +71,14 @@ public final class Respaldo {
         //throw new UnsupportedOperationException("TODO E14");
     }
 
+    /**
+     * Importa un respaldo binario y valida su encabezado.
+     *
+     * @param archivo ruta del respaldo
+     * @return contenido recuperado del archivo
+     * @throws IOException si ocurre un error de lectura o el encabezado es inválido
+     * @throws ClassNotFoundException si no se encuentra una clase serializada
+     */
     @SuppressWarnings("unchecked")
     public static Contenido importar(Path archivo) throws IOException, ClassNotFoundException {
         // TODO E14: Leer en el mismo orden; validar el encabezado (IOException si no coincide).

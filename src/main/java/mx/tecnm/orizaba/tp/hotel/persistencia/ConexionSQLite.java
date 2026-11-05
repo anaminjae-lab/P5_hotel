@@ -85,6 +85,11 @@ public final class ConexionSQLite implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Obtiene la conexión JDBC con SQLite.
+     *
+     * @return conexión activa con la base de datos
+     */
     public Connection conexion() {
         return conexion;
     }
@@ -122,9 +127,21 @@ public final class ConexionSQLite implements AutoCloseable {
     /** Interfaz funcional miembro: trabajo que puede lanzar {@link SQLException}. */
     @FunctionalInterface
     public interface TrabajoSQL<R> {
+        /**
+         * Ejecuta una operación SQL utilizando una conexión.
+         *
+         * @param c conexión JDBC
+         * @return resultado de la operación
+         * @throws SQLException si ocurre un error SQL
+         */
         R ejecutar(Connection c) throws SQLException;
     }
 
+    /**
+     * Cierra la conexión con la base de datos.
+     *
+     * @throws PersistenciaException si ocurre un error al cerrarla
+     */
     @Override
     public void close() {
         try {

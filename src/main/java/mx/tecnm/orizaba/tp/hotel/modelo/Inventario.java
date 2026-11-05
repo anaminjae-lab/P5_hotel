@@ -32,6 +32,11 @@ public class Inventario implements Iterable<Habitacion>, Serializable {
         agregar(iniciales);
     }
 
+    /**
+     * Agrega habitaciones al inventario sin permitir claves duplicadas.
+     *
+     * @param nuevos habitaciones que se desean agregar
+     */
     public final void agregar(Habitacion... nuevos) {
         // TODO E09: Recorrer los argumentos; rechazar nulos y claves duplicadas (ReglaNegocioException); usar putIfAbsent.
         if (nuevos == null) {
@@ -54,14 +59,27 @@ public class Inventario implements Iterable<Habitacion>, Serializable {
        // throw new UnsupportedOperationException("TODO E09");
     }
 
+    /**
+     * Busca una habitación mediante su clave.
+     *
+     * @param clave identificador de la habitación
+     * @return Optional con la habitación, si existe
+     */
     public Optional<Habitacion> buscar(NumeroHabitacion clave) {
         return Optional.ofNullable(elementos.get(clave));
     }
 
+    /**
+     * Elimina una habitación del inventario.
+     *
+     * @param clave identificador de la habitación
+     * @return true si la habitación fue eliminada
+     */
     public boolean retirar(NumeroHabitacion clave) {
         return elementos.remove(clave) != null;
     }
 
+    /** @return cantidad de habitaciones registradas */
     public int tamanio() {
         return elementos.size();
     }
@@ -87,6 +105,12 @@ public class Inventario implements Iterable<Habitacion>, Serializable {
        // throw new UnsupportedOperationException("TODO E09");
     }
 
+    /**
+     * Obtiene las habitaciones ordenadas según un criterio.
+     *
+     * @param criterio comparador utilizado para ordenar
+     * @return lista de habitaciones ordenadas
+     */
     public List<Habitacion> ordenados(Comparator<? super Habitacion> criterio) {
         return elementos.values().stream().sorted(criterio).toList();
     }
@@ -150,6 +174,11 @@ public class Inventario implements Iterable<Habitacion>, Serializable {
         //throw new UnsupportedOperationException("TODO E10");
     }
 
+    /**
+     * Crea un iterador para recorrer las habitaciones.
+     *
+     * @return iterador de habitaciones
+     */
     @Override
     public Iterator<Habitacion> iterator() {
         return new Iterador();
@@ -164,11 +193,22 @@ public class Inventario implements Iterable<Habitacion>, Serializable {
         private final List<Habitacion> instantanea = new ArrayList<>(elementos.values());
         private int cursor;
 
+        /**
+         * Comprueba si quedan habitaciones por recorrer.
+         *
+         * @return true si existe una siguiente habitación
+         */
         @Override
         public boolean hasNext() {
             return cursor < instantanea.size();
         }
 
+        /**
+         * Obtiene la siguiente habitación y avanza el cursor.
+         *
+         * @return siguiente habitación del recorrido
+         * @throws NoSuchElementException si no quedan habitaciones
+         */
         @Override
         public Habitacion next() {
             // TODO E10: Lanzar NoSuchElementException si no hay siguiente; devolver el elemento y avanzar el cursor.

@@ -68,6 +68,12 @@ public final class PruebasModelo {
         throw new AssertionError("se esperaba " + tipo.getSimpleName());
     }
 
+    /**
+     * Ejecuta las pruebas de aceptación del modelo hotelero.
+     *
+     * @param args argumentos de ejecución
+     * @throws Exception si ocurre un error durante las pruebas
+     */
     public static void main(String[] args) throws Exception {
         Path tmp = Files.createTempDirectory("pruebas-hotel");
         System.out.println("Pruebas del modelo – Hotel");

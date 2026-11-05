@@ -70,11 +70,21 @@ public class Hotel implements AutoCloseable {
     private final Supplier<LocalDate> reloj;
     private MonitorSalidas monitor;
 
+    /**
+     * Construye el servicio del hotel con conexión SQLite y la fecha actual.
+     *
+     * @param bd conexión a la base de datos
+     */
     public Hotel(ConexionSQLite bd) {
         this(bd, LocalDate::now);
     }
 
-    /** @param reloj proveedor de la fecha actual (inyectable para pruebas y simulación) */
+    /**
+     * Construye el servicio del hotel con un reloj configurable.
+     *
+     * @param bd conexión a la base de datos
+     * @param reloj proveedor de fechas para pruebas y simulaciones
+     */
     public Hotel(ConexionSQLite bd, Supplier<LocalDate> reloj) {
         // TODO E15: Crear los tres repositorios SQLite, asignar el reloj y cargar los datos existentes en memoria.
         this.reloj = java.util.Objects.requireNonNull(reloj);
@@ -105,10 +115,20 @@ public class Hotel implements AutoCloseable {
 
     // ------------------------------------------------------------------ eventos
 
+    /**
+     * Registra un oyente para recibir eventos del hotel.
+     *
+     * @param oyente oyente que se desea registrar
+     */
     public void suscribir(OyenteEvento oyente) {
         oyentes.add(oyente);
     }
 
+    /**
+     * Elimina un oyente de la lista de suscriptores.
+     *
+     * @param oyente oyente que se desea retirar
+     */
     public void desuscribir(OyenteEvento oyente) {
         oyentes.remove(oyente);
     }
@@ -121,8 +141,15 @@ public class Hotel implements AutoCloseable {
     // ------------------------------------------------------------------ catálogo
 
     /**
-     * Alta genérica de cualquier subtipo mediante una fábrica (función de orden superior).
-     * Ejemplo: {@code registrar(Habitacion.Sencilla::new, "...", 100.0, 1)}.
+     * Registra una habitación mediante una fábrica y la guarda en SQLite.
+     *
+     * @param <E> subtipo de habitación
+     * @param <A> tipo del atributo adicional
+     * @param fabrica fábrica que crea la habitación
+     * @param nombre nombre de la habitación
+     * @param precio precio base
+     * @param atributo atributo específico del subtipo
+     * @return habitación registrada
      */
     public <E extends Habitacion, A> E registrar(FabricaElemento<E, A> fabrica, String nombre, double precio, A atributo) {
         // TODO E15: Crear con la fábrica, persistir, agregar al catálogo, publicar ALTA y devolver el elemento.
@@ -136,12 +163,26 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E15");
     }
 
+    /**
+     * Actualiza los datos de una habitación y los guarda en SQLite.
+     *
+     * @param elemento habitación que se desea actualizar
+     * @param nombre nuevo nombre
+     * @param precio nuevo precio base
+     */
     public void actualizar(Habitacion elemento, String nombre, double precio) {
         elemento.setNombre(nombre);
         elemento.setPrecioBase(precio);
         repoElementos.guardar(elemento);
     }
 
+    /**
+     * Retira una habitación si no está asociada a una reservación.
+     *
+     * @param clave identificador de la habitación
+     * @return true si la habitación fue eliminada
+     * @throws ReglaNegocioException si la habitación está en uso
+     */
     public boolean retirar(NumeroHabitacion clave) {
         // TODO E15: Impedir retirar elementos referenciados por algún registro; eliminar de la BD y del catálogo.
         boolean enUso = registros.values().stream()
@@ -168,10 +209,22 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E15");
     }
 
+    /**
+     * Obtiene el inventario de habitaciones del hotel.
+     *
+     * @return inventario de habitaciones
+     */
     public Inventario catalogo() {
         return catalogo;
     }
 
+    /**
+     * Busca una habitación por su clave.
+     *
+     * @param clave identificador textual de la habitación
+     * @return habitación encontrada
+     * @throws ReglaNegocioException si no existe la habitación
+     */
     public Habitacion elemento(String clave) {
         return catalogo.buscar(NumeroHabitacion.parse(clave))
                 .orElseThrow(() -> new ReglaNegocioException("No existe " + clave));
@@ -179,6 +232,14 @@ public class Hotel implements AutoCloseable {
 
     // ------------------------------------------------------------------ huéspedes
 
+    /**
+     * Registra un huésped con un correo único y lo guarda en SQLite.
+     *
+     * @param nombre nombre del huésped
+     * @param correo correo electrónico
+     * @param nivel nivel del huésped
+     * @return huésped registrado
+     */
     public Huesped registrarHuesped(String nombre, String correo, Nivel nivel) {
         // TODO E15: Rechazar correos repetidos; id = máximo actual + 1 (stream mapToInt/max); persistir y publicar ALTA.
         boolean repetido = huespeds.values().stream()
@@ -203,23 +264,46 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E15");
     }
 
+    /**
+     * Actualiza el nivel de un huésped y guarda el cambio.
+     *
+     * @param idHuesped identificador del huésped
+     * @param nivel nuevo nivel
+     */
     public void cambiarNivel(int idHuesped, Nivel nivel) {
         Huesped a = huesped(idHuesped);
         a.setNivel(nivel);
         repoHuespeds.guardar(a);
     }
 
+    /**
+     * Busca un huésped por su identificador.
+     *
+     * @param id identificador del huésped
+     * @return huésped encontrado
+     */
     public Huesped huesped(int id) {
         return Optional.ofNullable(huespeds.get(id))
                 .orElseThrow(() -> new ReglaNegocioException("No existe el registro " + id));
     }
 
+    /**
+     * Obtiene los huéspedes ordenados por identificador.
+     *
+     * @return lista ordenada de huéspedes
+     */
     public List<Huesped> huespeds() {
         return huespeds.values().stream().sorted(Comparator.comparingInt(Huesped::id)).toList();
     }
 
     // ------------------------------------------------------------------ reservaciones
 
+    /**
+     * Crea y guarda una reservación abierta para un huésped.
+     *
+     * @param idHuesped identificador del huésped
+     * @return reservación creada
+     */
     public Reservacion abrir(int idHuesped) {
         // TODO E15: Crear el registro con la fecha del reloj, persistir, guardar en el mapa y publicar CAMBIO_ESTADO.
         // 1. Buscamos al huésped.
@@ -250,6 +334,14 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E15");
     }
 
+    /**
+     * Agrega una habitación a una reservación y guarda el cambio.
+     *
+     * @param idReservacion identificador de la reservación
+     * @param clave clave de la habitación
+     * @param unidades cantidad de noches
+     * @return línea agregada
+     */
     public Reservacion.Linea agregarLinea(int idReservacion, String clave, int unidades) {
         // TODO E15: Localizar registro y elemento, agregar la línea y persistir.
         Reservacion reservacion = registro(idReservacion);
@@ -261,6 +353,13 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E15");
     }
 
+    /**
+     * Retira una línea de una reservación.
+     *
+     * @param idReservacion identificador de la reservación
+     * @param clave clave de la habitación
+     * @return true si la línea fue eliminada
+     */
     public boolean quitarLinea(int idReservacion, String clave) {
         Reservacion t = registro(idReservacion);
         boolean ok = t.quitar(NumeroHabitacion.parse(clave));
@@ -268,14 +367,29 @@ public class Hotel implements AutoCloseable {
         return ok;
     }
 
+    /**
+     * Inicia una reservación.
+     *
+     * @param idReservacion identificador de la reservación
+     */
     public void iniciar(int idReservacion) {
         transitar(idReservacion, Reservacion::iniciar);
     }
 
+    /**
+     * Cierra una reservación.
+     *
+     * @param idReservacion identificador de la reservación
+     */
     public void cerrar(int idReservacion) {
         transitar(idReservacion, Reservacion::cerrar);
     }
 
+    /**
+     * Cancela una reservación.
+     *
+     * @param idReservacion identificador de la reservación
+     */
     public void cancelar(int idReservacion) {
         transitar(idReservacion, Reservacion::cancelar);
     }
@@ -292,15 +406,32 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E15");
     }
 
+    /**
+     * Busca una reservación por identificador.
+     *
+     * @param id identificador de la reservación
+     * @return reservación encontrada
+     */
     public Reservacion registro(int id) {
         return Optional.ofNullable(registros.get(id))
                 .orElseThrow(() -> new ReglaNegocioException("No existe el registro " + id));
     }
 
+    /**
+     * Obtiene las reservaciones ordenadas por identificador.
+     *
+     * @return lista ordenada de reservaciones
+     */
     public List<Reservacion> registros() {
         return registros.values().stream().sorted(Comparator.comparingInt(Reservacion::id)).toList();
     }
 
+    /**
+     * Filtra las reservaciones por estado.
+     *
+     * @param estado estado que se desea consultar
+     * @return reservaciones que tienen ese estado
+     */
     public List<Reservacion> registrosEn(Estado estado) {
         return registros().stream().filter(t -> t.estado() == estado).toList();
     }
@@ -364,6 +495,11 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E16");
     }
 
+    /**
+     * Calcula estadísticas de los totales de reservaciones cerradas.
+     *
+     * @return estadísticas de cantidad, suma, mínimo, máximo y promedio
+     */
     public DoubleSummaryStatistics estadisticas() {
         // TODO E16: mapToDouble(Reservacion::total).summaryStatistics() sobre los cerrados.
         return registros.values().stream()
@@ -375,6 +511,13 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E16");
     }
 
+    /**
+     * Divide las habitaciones según su precio base.
+     *
+     * @param umbral precio utilizado para la separación
+     * @return mapa con habitaciones de precio mayor o igual al umbral
+     *         y habitaciones de precio inferior
+     */
     public Map<Boolean, List<Habitacion>> particionarPorPrecio(double umbral) {
         // TODO E16: partitioningBy(e -> e.precioBase() >= umbral).
         return StreamSupport.stream(
@@ -390,11 +533,22 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E16");
     }
 
+    /**
+     * Cuenta las reservaciones agrupadas por estado.
+     *
+     * @return mapa con la cantidad de reservaciones por estado
+     */
     public Map<Estado, Long> conteoPorEstado() {
         return registros.values().stream()
                 .collect(Collectors.groupingBy(Reservacion::estado, () -> new TreeMap<>(), Collectors.counting()));
     }
 
+    /**
+     * Filtra las habitaciones utilizando una regla.
+     *
+     * @param regla condición que deben cumplir las habitaciones
+     * @return lista de habitaciones que cumplen la regla
+     */
     public List<Habitacion> buscar(Regla<? super Habitacion> regla) {
         return catalogo.filtrar(regla);
     }
@@ -495,6 +649,12 @@ public class Hotel implements AutoCloseable {
         //throw new UnsupportedOperationException("TODO E12");
     }
 
+    /**
+     * Inicia el monitor periódico de reservaciones.
+     *
+     * @param periodoMs intervalo entre revisiones en milisegundos
+     * @throws IllegalStateException si el monitor ya está activo
+     */
     public synchronized void iniciarMonitor(long periodoMs) {
         // TODO E12: Crear el monitor interno (new MonitorSalidas(periodoMs)) e iniciarlo con un nombre de hilo descriptivo.
         // Evitar crear otro monitor si ya hay uno activo.
@@ -508,6 +668,11 @@ public class Hotel implements AutoCloseable {
        // throw new UnsupportedOperationException("TODO E12");
     }
 
+    /**
+     * Solicita la detención del monitor y espera su finalización.
+     *
+     * @throws InterruptedException si se interrumpe la espera
+     */
     public void detenerMonitor() throws InterruptedException {
         MonitorSalidas m;
         synchronized (this) {
@@ -518,6 +683,11 @@ public class Hotel implements AutoCloseable {
         }
     }
 
+    /**
+     * Consulta si el monitor de reservaciones está activo.
+     *
+     * @return true si el monitor está en ejecución
+     */
     public synchronized boolean monitorActivo() {
         return monitor != null && monitor.activa();
     }
@@ -531,6 +701,9 @@ public class Hotel implements AutoCloseable {
             super(periodoMs);
         }
 
+        /**
+         * Ejecuta un ciclo de revisión de las reservaciones del hotel.
+         */
         @Override
         protected void ejecutarCiclo() {
             // TODO E12: Delegar en la envolvente: Hotel.this.revisar().
@@ -541,6 +714,12 @@ public class Hotel implements AutoCloseable {
 
     // ------------------------------------------------------------------ respaldo
 
+    /**
+     * Exporta los datos del hotel a un archivo de respaldo.
+     *
+     * @param archivo ruta del archivo de respaldo
+     * @throws IOException si ocurre un error de escritura
+     */
     public void exportarRespaldo(Path archivo) throws IOException {
         Respaldo.exportar(archivo, catalogo, huespeds(), registros());
     }

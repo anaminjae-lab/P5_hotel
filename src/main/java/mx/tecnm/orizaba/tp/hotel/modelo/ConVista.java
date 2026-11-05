@@ -8,8 +8,18 @@ package mx.tecnm.orizaba.tp.hotel.modelo;
  */
 public interface ConVista {
 
+    /**
+     * Obtiene la vista que ofrece la habitación.
+     *
+     * @return descripción de la vista
+     */
     String vista();
 
+    /**
+     * Devuelve una descripción breve de la vista.
+     *
+     * @return texto con la vista de la habitación
+     */
     default String descripcionCorta() {
         // TODO E05: Devolver "Vista: " concatenado con el valor de vista().
         return "Vista: " + vista();

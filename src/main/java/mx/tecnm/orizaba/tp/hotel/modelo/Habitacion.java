@@ -61,33 +61,69 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         //throw new UnsupportedOperationException("TODO E04");
     }
 
+    /**
+     * Obtiene el número de instancias de habitación creadas.
+     *
+     * @return cantidad de instancias creadas
+     */
     public static int instanciasCreadas() {
         return INSTANCIAS_CREADAS.get();
     }
 
+    /**
+     * Obtiene la clave única de la habitación.
+     *
+     * @return número de habitación
+     */
     @Override
     public final NumeroHabitacion clave() {
         return clave;
     }
 
+    /**
+     * Obtiene el nombre de la habitación.
+     *
+     * @return nombre de la habitación
+     */
     @Override
     public final String nombre() {
         return nombre;
     }
 
+    /**
+     * Obtiene el precio base por noche.
+     *
+     * @return precio base de la habitación
+     */
     @Override
     public final double precioBase() {
         return precioBase;
     }
 
+    /**
+     * Obtiene la fecha y hora de creación de la habitación.
+     *
+     * @return fecha y hora de creación
+     */
     public final LocalDateTime creadoEn() {
         return creadoEn;
     }
 
+    /**
+     * Obtiene la cantidad de cotizaciones realizadas.
+     *
+     * @return número de cotizaciones
+     */
     public final int cotizaciones() {
         return cotizaciones;
     }
 
+    /**
+     * Modifica el nombre de la habitación.
+     *
+     * @param nombre nuevo nombre de la habitación
+     * @throws ReglaNegocioException si el nombre es nulo o está en blanco
+     */
     public final void setNombre(String nombre) {
         // TODO E04: Rechazar nombres nulos o en blanco (ReglaNegocioException); guardar el nombre sin espacios extremos.
         if (nombre == null || nombre.isBlank()) {
@@ -97,6 +133,13 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         //throw new UnsupportedOperationException("TODO E04");
     }
 
+    /**
+     * Modifica el precio base de la habitación.
+     *
+     * @param precioBase nuevo precio base
+     * @throws ReglaNegocioException si el precio es negativo,
+     *         NaN o infinito
+     */
     public final void setPrecioBase(double precioBase) {
         // TODO E04: Rechazar precios negativos, NaN o infinitos (ReglaNegocioException).
         if (precioBase < 0 || !Double.isFinite(precioBase)) {
@@ -110,7 +153,14 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         //throw new UnsupportedOperationException("TODO E04");
     }
 
-    /** Método plantilla: valida, contabiliza y redondea; la variación la aporta cada subtipo. */
+    /**
+     * Método plantilla: valida, contabiliza y redondea;
+     * la variación la aporta cada subtipo.
+     *
+     * @param unidades cantidad de noches de estancia
+     * @return importe calculado de la estancia
+     * @throws ReglaNegocioException si las unidades no son positivas
+     */
     @Override
     public final double tarifa(int unidades) {
         // TODO E04: Validar unidades > 0 (ReglaNegocioException), incrementar cotizaciones y devolver calcularTarifa redondeada a 2 decimales.
@@ -139,16 +189,32 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         return getClass().getSimpleName();
     }
 
+    /**
+     * Compara dos habitaciones utilizando su clave única.
+     *
+     * @param o objeto con el que se compara
+     * @return true si ambas habitaciones tienen la misma clave
+     */
     @Override
     public final boolean equals(Object o) {
         return this == o || (o instanceof Habitacion otro && clave.equals(otro.clave));
     }
 
+    /**
+     * Calcula el código hash de la habitación usando su clave.
+     *
+     * @return código hash de la habitación
+     */
     @Override
     public final int hashCode() {
         return clave.hashCode();
     }
 
+    /**
+     * Devuelve una representación textual de la habitación.
+     *
+     * @return descripción de la habitación
+     */
     @Override
     public String toString() {
         return String.format("%s[%s, %s, $%.2f]", tipo(), clave, nombre, precioBase);
@@ -166,11 +232,26 @@ public abstract sealed class Habitacion implements Reservable, Serializable
 
         private final int camas;
 
+        /**
+         * Inicializa una habitación sencilla con una clave autogenerada.
+         *
+         * @param nombre nombre de la habitación
+         * @param precioBase precio por noche
+         * @param camas cantidad de camas (1 o 2)
+         */
         public Sencilla(String nombre, double precioBase, int camas) {
             super(PREFIJO, nombre, precioBase);
             this.camas = validar(camas);
         }
 
+        /**
+         * Inicializa una habitación sencilla con una clave existente.
+         *
+         * @param clave número de habitación existente
+         * @param nombre nombre de la habitación
+         * @param precioBase precio por noche
+         * @param camas cantidad de camas (1 o 2)
+         */
         public Sencilla(NumeroHabitacion clave, String nombre, double precioBase, int camas) {
             super(clave, nombre, precioBase);
             this.camas = validar(camas);
@@ -187,6 +268,11 @@ public abstract sealed class Habitacion implements Reservable, Serializable
             //throw new UnsupportedOperationException("TODO E05");
         }
 
+        /**
+         * Obtiene la cantidad de camas de la habitación sencilla.
+         *
+         * @return número de camas
+         */
         public int camas() {
             return camas;
         }
@@ -206,11 +292,22 @@ public abstract sealed class Habitacion implements Reservable, Serializable
             //throw new UnsupportedOperationException("TODO E05");
         }
 
+        /**
+         * Obtiene la vista de la habitación sencilla.
+         *
+         * @return descripción de la vista
+         */
         @Override
         public String vista() {
             return "Jardín";
         }
 
+        /**
+         * Devuelve la representación de la habitación sencilla,
+         * incluyendo su cantidad de camas.
+         *
+         * @return descripción de la habitación sencilla
+         */
         @Override
         public String toString() {
             return super.toString() + " {camas=" + camas + "}";
@@ -225,15 +322,31 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         @Serial
         private static final long serialVersionUID = 1L;
 
+        /** Prefijo utilizado para identificar habitaciones dobles. */
         public static final String PREFIJO = "DOB";
 
         private final int piso;
 
+        /**
+         * Inicializa una habitación doble con una clave autogenerada.
+         *
+         * @param nombre nombre de la habitación
+         * @param precioBase precio por noche
+         * @param piso piso donde se encuentra la habitación
+         */
         public Doble(String nombre, double precioBase, int piso) {
             super(PREFIJO, nombre, precioBase);
             this.piso = validar(piso);
         }
 
+        /**
+         * Inicializa una habitación doble con una clave existente.
+         *
+         * @param clave número de habitación asignado
+         * @param nombre nombre de la habitación
+         * @param precioBase precio por noche
+         * @param piso piso donde se encuentra la habitación
+         */
         public Doble(NumeroHabitacion clave, String nombre, double precioBase, int piso) {
             super(clave, nombre, precioBase);
             this.piso = validar(piso);
@@ -252,6 +365,11 @@ public abstract sealed class Habitacion implements Reservable, Serializable
             //throw new UnsupportedOperationException("TODO E05");
         }
 
+        /**
+         * Obtiene el piso donde se encuentra la habitación doble.
+         *
+         * @return número de piso de la habitación
+         */
         public int piso() {
             return piso;
         }
@@ -272,16 +390,26 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         @Override
         public Doble copiar() {
             // TODO E05: Crear un nuevo Doble con el mismo nombre, precio y atributo (clave nueva).
-
             return new Doble(nombre(), precioBase(), piso());
            // throw new UnsupportedOperationException("TODO E05");
         }
 
+        /**
+         * Describe las adaptaciones de acceso de la habitación doble.
+         *
+         * @return descripción del acceso según el piso
+         */
         @Override
         public String adaptaciones() {
             return piso == 1 ? "Planta baja accesible" : "Acceso por elevador";
         }
 
+        /**
+         * Devuelve la descripción de la habitación doble,
+         * incluyendo el piso donde se encuentra.
+         *
+         * @return descripción de la habitación doble
+         */
         @Override
         public String toString() {
             return super.toString() + " {piso=" + piso + "}";
@@ -296,15 +424,31 @@ public abstract sealed class Habitacion implements Reservable, Serializable
         @Serial
         private static final long serialVersionUID = 1L;
 
+        /** Prefijo utilizado para identificar habitaciones tipo suite. */
         public static final String PREFIJO = "SUI";
 
         private final int metros;
 
+        /**
+         * Inicializa una suite con una clave autogenerada.
+         *
+         * @param nombre nombre de la habitación
+         * @param precioBase precio por noche
+         * @param metros superficie de la suite en metros cuadrados
+         */
         public Suite(String nombre, double precioBase, int metros) {
             super(PREFIJO, nombre, precioBase);
             this.metros = validar(metros);
         }
 
+        /**
+         * Inicializa una suite con una clave existente.
+         *
+         * @param clave número de habitación asignado
+         * @param nombre nombre de la habitación
+         * @param precioBase precio por noche
+         * @param metros superficie de la suite en metros cuadrados
+         */
         public Suite(NumeroHabitacion clave, String nombre, double precioBase, int metros) {
             super(clave, nombre, precioBase);
             this.metros = validar(metros);
@@ -320,6 +464,11 @@ public abstract sealed class Habitacion implements Reservable, Serializable
             return metros;
         }
 
+        /**
+         * Obtiene la superficie de la suite.
+         *
+         * @return superficie en metros cuadrados
+         */
         public int metros() {
             return metros;
         }
@@ -343,11 +492,21 @@ public abstract sealed class Habitacion implements Reservable, Serializable
             //throw new UnsupportedOperationException("TODO E05");
         }
 
+        /**
+         * Obtiene la vista de la suite.
+         *
+         * @return descripción de la vista
+         */
         @Override
         public String vista() {
             return "Pico de Orizaba";
         }
 
+        /**
+         * Describe las adaptaciones de acceso de la suite.
+         *
+         * @return descripción de las adaptaciones
+         */
         @Override
         public String adaptaciones() {
             return "Accesibilidad total";
@@ -363,6 +522,11 @@ public abstract sealed class Habitacion implements Reservable, Serializable
            // throw new UnsupportedOperationException("TODO E05");
         }
 
+        /**
+         * Devuelve la descripción de la suite, incluyendo su superficie.
+         *
+         * @return descripción de la suite
+         */
         @Override
         public String toString() {
             return super.toString() + " {metros cuadrados=" + metros + "}";

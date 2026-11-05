@@ -13,13 +13,30 @@ public interface Reservable {
     /** Constante de interfaz: implícitamente {@code public static final}. */
     double TASA_IMPUESTO = 0.16;
 
+    /**
+     * Obtiene la clave única del elemento reservable.
+     *
+     * @return número de habitación que identifica al elemento
+     */
     NumeroHabitacion clave();
-
+    /**
+     * Obtiene el nombre del elemento reservable.
+     *
+     * @return nombre del elemento
+     */
     String nombre();
-
+    /**
+     * Obtiene el precio base del elemento reservable.
+     *
+     * @return precio base
+     */
     double precioBase();
-
-    /** Tarifa (sin impuestos) para la cantidad de noches indicada. */
+    /**
+     * Calcula la tarifa sin impuestos para una estancia.
+     *
+     * @param unidades cantidad de noches
+     * @return importe de la estancia sin impuestos
+     */
     double tarifa(int unidades);
 
     /** Método por defecto (extensión de la interfaz sin romper implementaciones). */

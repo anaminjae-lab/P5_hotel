@@ -1,0 +1,342 @@
+@startuml
+title Sistema de Reservaciones de un Hotel - UML Actualizado
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package modelo {
+  interface Reservable {
+    {static} +TASA_IMPUESTO : double
+    +clave() : NumeroHabitacion
+    +nombre() : String
+    +precioBase() : double
+    +tarifa(u : int) : double
+    +tarifaConImpuesto(u : int) : double
+    {static} +porNombre() : Comparator
+  }
+  interface ConVista {
+    +vista() : String
+    +descripcionCorta() : String
+  }
+  interface Accesible {
+    +adaptaciones() : String
+    +descripcionCorta() : String
+  }
+ abstract class Habitacion <<sealed>> {
+   {static} -INSTANCIAS_CREADAS : AtomicInteger
+   {static} -serialVersionUID : long
+   -clave : NumeroHabitacion
+   -nombre : String
+   -precioBase : double
+   -creadoEn : LocalDateTime
+   -cotizaciones : int <<transient>>
+
+   {static} +instanciasCreadas() : int
+   +clave() : NumeroHabitacion
+   +nombre() : String
+   +precioBase() : double
+   +creadoEn() : LocalDateTime
+   +cotizaciones() : int
+   +setNombre(nombre : String) : void
+   +setPrecioBase(precio : double) : void
+   +tarifa(unidades : int) : double
+   {abstract} #calcularTarifa(unidades : int) : double
+   {abstract} +copiar() : Habitacion
+   +tipo() : String
+   +equals(o : Object) : boolean
+   +hashCode() : int
+   +toString() : String
+ }
+
+  class "Habitacion.Sencilla" as Sencilla <<static final>> {
+    {static} +PREFIJO : String = "SEN"
+    -camas : int
+    #calcularTarifa(u : int) : double
+    +copiar() : Sencilla
+  }
+  class "Habitacion.Doble" as Doble <<static final>> {
+    {static} +PREFIJO : String = "DOB"
+    -piso : int
+    #calcularTarifa(u : int) : double
+    +copiar() : Doble
+  }
+  class "Habitacion.Suite" as Suite <<static final>> {
+    {static} +PREFIJO : String = "SUI"
+    -metros : int
+    #calcularTarifa(u : int) : double
+    +copiar() : Suite
+  }
+  class NumeroHabitacion <<record>> {
+    prefijo : String
+    numero : int
+    {static} +siguiente(prefijo : String) : NumeroHabitacion
+    {static} +parse(texto : String) : NumeroHabitacion
+  }
+  enum Nivel {
+    ESTANDAR
+    FRECUENTE
+    CONVENIO
+    +aplicar(monto : double) : double
+  }
+  enum Estado {
+    ABIERTA
+    EN_CURSO
+    CERRADA
+    CANCELADA
+    +permiteTransicionA(d : Estado) : boolean
+  }
+  class Huesped <<Externalizable>> {
+    -id : int
+    -nombre : String
+    -correo : String
+    -nivel : Nivel
+  }
+ class Reservacion {
+   {static} -SECUENCIA : AtomicInteger
+   {static} -serialVersionUID : long
+   -id : int
+   -huesped : Huesped
+   -fecha : LocalDate
+   -estado : Estado
+   -lineas : List<Linea>
+
+   +Reservacion(huesped : Huesped)
+   +Reservacion(id : int, huesped : Huesped, fecha : LocalDate)
+   +id() : int
+   +huesped() : Huesped
+   +fecha() : LocalDate
+   +estado() : Estado
+   +agregar(elemento : Habitacion, unidades : int) : Linea
+   +quitar(clave : NumeroHabitacion) : boolean
+   +cambiarEstado(destino : Estado) : void
+   +iniciar() : void
+   +cerrar() : void
+   +cancelar() : void
+   +restaurarEstado(estado : Estado) : void
+   +lineas() : List<Linea>
+   +subtotal() : double
+   +total() : double
+   +diasDesde(hoy : LocalDate) : long
+   +iterator() : Iterator<Linea>
+   {static} -redondear(v : double) : double
+   +toString() : String
+ }
+ class "Reservacion.Linea" as Linea <<inner>> {
+   {static} -serialVersionUID : long
+   -elemento : Habitacion
+   -unidades : int
+
+   -Linea(elemento : Habitacion, unidades : int)
+   +elemento() : Habitacion
+   +unidades() : int
+   +subtotal() : double
+   +importe() : double
+   +contenedor() : Reservacion
+   +toString() : String
+ }
+class Inventario {
+  {static} -serialVersionUID : long
+  -elementos : Map<NumeroHabitacion, Habitacion>
+
+  +Inventario(iniciales : Habitacion...)
+  +agregar(nuevos : Habitacion...) : void
+  +buscar(clave : NumeroHabitacion) : Optional<Habitacion>
+  +retirar(clave : NumeroHabitacion) : boolean
+  +tamanio() : int
+  +filtrar(regla : Regla) : List<Habitacion>
+  +deTipo(tipo : Class<E>) : List<E>
+  +ordenados(criterio : Comparator) : List<Habitacion>
+  {static} +porTarifa(unidades : int) : Comparator<Habitacion>
+  +resumen() : String
+  +iterator() : Iterator<Habitacion>
+}
+  class "Inventario.Iterador" as Iterador <<private inner>> {
+    -instantanea : List<Habitacion>
+    -cursor : int
+
+    +hasNext() : boolean
+    +next() : Habitacion
+  }
+}
+
+package funcional {
+  interface "Regla<T>" as Regla <<functional>> {
+    +evaluar(t : T) : boolean
+    +y(o) : Regla
+    +o(o) : Regla
+    +negar() : Regla
+  }
+  interface "FabricaElemento<E extends Habitacion, A>" as Fabrica <<functional>> {
+    +crear(nombre, precio, atributo : A) : E
+  }
+}
+
+package concurrencia {
+  interface Runnable <<Java>>
+
+  abstract class TareaPeriodica {
+    -activa : boolean <<volatile>>
+    +iniciar(nombre : String)
+    +detener()
+    {abstract} #ejecutarCiclo()
+  }
+
+  TareaPeriodica ..|> Runnable
+}
+
+package eventos {
+  interface OyenteEvento <<functional>> {
+    +alOcurrir(evento : Evento) : void
+  }
+
+  class Evento <<record>> {
+    +tipo() : TipoEvento
+    +mensaje() : String
+  }
+
+  enum TipoEvento
+}
+
+package persistencia {
+  interface "Repositorio<T,K>" as Repositorio {
+    +guardar(entidad : T) : void
+    +buscar(clave : K) : Optional<T>
+    +todos() : List<T>
+    +eliminar(clave : K) : boolean
+  }
+
+  interface "Repositorio.MapeadorFila<T>" as MapeadorFila <<functional>>
+
+  class ConexionSQLite {
+    +enTransaccion(trabajo : TrabajoSQL) : Object
+  }
+
+  interface "ConexionSQLite.TrabajoSQL<R>" as TrabajoSQL <<functional>>
+
+  class RepositorioHabitacionSQLite
+  class RepositorioHuespedSQLite
+  class RepositorioReservacionSQLite
+  class Respaldo
+
+  class PersistenciaException
+
+  Repositorio +-- MapeadorFila
+  ConexionSQLite +-- TrabajoSQL
+}
+
+package servicio {
+  class Hotel {
+    {static} +PLAZO_DIAS : int
+    -catalogo : Inventario
+    -huespeds : Map<Integer, Huesped>
+    -registros : Map<Integer, Reservacion>
+    -alertados : Set<Integer>
+    -oyentes : List<OyenteEvento>
+    -reloj : Supplier<LocalDate>
+    -monitor : MonitorSalidas
+
+    +Hotel(bd : ConexionSQLite)
+    +Hotel(bd : ConexionSQLite, reloj : Supplier<LocalDate>)
+    +catalogo() : Inventario
+    +registrar(fabrica : FabricaElemento, nombre : String, precio : double, atributo : A) : E
+    +actualizar(elemento : Habitacion, nombre : String, precio : double) : void
+    +retirar(clave : NumeroHabitacion) : boolean
+    +registrarHuesped(nombre : String, correo : String, nivel : Nivel) : Huesped
+    +abrir(idHuesped : int) : Reservacion
+    +agregarLinea(id : int, clave : String, unidades : int) : Reservacion.Linea
+    +iniciar(id : int) : void
+    +cerrar(id : int) : void
+    +cancelar(id : int) : void
+    +revisar() : int
+    +iniciarMonitor(periodoMs : long) : void
+    +detenerMonitor() : void
+    +monitorActivo() : boolean
+    +ingresosPorTipo() : Map<String, Double>
+    +masDemandado() : Optional<Habitacion>
+    +estadisticas() : DoubleSummaryStatistics
+    +suscribir(oyente : OyenteEvento) : void
+    +desuscribir(oyente : OyenteEvento) : void
+    +close() : void
+  }
+
+  class "Hotel.MonitorSalidas" as Monitor <<inner>>
+}
+Habitacion ..|> Reservable
+Sencilla --|> Habitacion
+Habitacion +-- Sencilla
+Sencilla ..|> ConVista
+Doble --|> Habitacion
+Habitacion +-- Doble
+Doble ..|> Accesible
+Suite --|> Habitacion
+Habitacion +-- Suite
+Suite ..|> ConVista
+Suite ..|> Accesible
+Reservacion "1" *-- "0..*" Linea : contiene
+Reservacion +-- Linea
+Linea --> "1" Habitacion
+Reservacion --> "1" Huesped
+Reservacion --> Estado
+Huesped --> Nivel
+Inventario o-- "0..*" Habitacion
+Inventario +-- Iterador
+Inventario ..> Regla
+Fabrica ..> Habitacion
+Hotel +-- Monitor
+Monitor --|> TareaPeriodica
+Hotel o-- "0..*" OyenteEvento
+Hotel --> Inventario
+Hotel --> Repositorio
+RepositorioHabitacionSQLite ..|> Repositorio
+RepositorioHuespedSQLite ..|> Repositorio
+RepositorioReservacionSQLite ..|> Repositorio
+RepositorioReservacionSQLite --> ConexionSQLite
+OyenteEvento ..> Evento
+' Hotel implementa AutoCloseable
+interface AutoCloseable <<Java>>
+Hotel ..|> AutoCloseable
+
+' Dependencias de la fachada
+Hotel --> ConexionSQLite
+Hotel --> Huesped
+Hotel --> Reservacion
+Hotel ..> Fabrica
+
+' =========================================
+' INTERFAZ GRAFICA SWING
+' =========================================
+
+package ui {
+  class VentanaPrincipal
+  class PanelHabitaciones
+  class PanelHuespedes
+  class PanelReservaciones
+  class PanelReportes
+  class PanelEventos
+}
+
+' Herencia de componentes Swing
+class JFrame <<Swing>>
+class JPanel <<Swing>>
+
+VentanaPrincipal --|> JFrame
+PanelHabitaciones --|> JPanel
+PanelHuespedes --|> JPanel
+PanelReservaciones --|> JPanel
+PanelReportes --|> JPanel
+PanelEventos --|> JPanel
+
+' La ventana principal contiene los paneles
+VentanaPrincipal *-- PanelHabitaciones
+VentanaPrincipal *-- PanelHuespedes
+VentanaPrincipal *-- PanelReservaciones
+VentanaPrincipal *-- PanelReportes
+VentanaPrincipal *-- PanelEventos
+
+' Dependencia de la interfaz con la fachada
+VentanaPrincipal --> Hotel
+PanelHabitaciones ..> Hotel
+PanelHuespedes ..> Hotel
+PanelReservaciones ..> Hotel
+PanelReportes ..> Hotel
+PanelEventos ..> Hotel
+@enduml

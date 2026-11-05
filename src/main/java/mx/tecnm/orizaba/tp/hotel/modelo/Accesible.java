@@ -8,8 +8,18 @@ package mx.tecnm.orizaba.tp.hotel.modelo;
  */
 public interface Accesible {
 
+    /**
+     * Obtiene las adaptaciones de acceso de la habitación.
+     *
+     * @return descripción de las adaptaciones
+     */
     String adaptaciones();
 
+    /**
+     * Devuelve una descripción breve de la accesibilidad.
+     *
+     * @return texto con las adaptaciones de acceso
+     */
     default String descripcionCorta() {
         // TODO E05: Devolver "Accesibilidad: " concatenado con el valor de adaptaciones().
         return "Accesibilidad: " + adaptaciones();

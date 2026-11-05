@@ -18,6 +18,12 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class DemoModelo {
 
+    /**
+     * Ejecuta una demostración del sistema hotelero desde consola.
+     *
+     * @param args argumentos de ejecución; el primero puede indicar la ruta de SQLite
+     * @throws Exception si ocurre un error durante la demostración
+     */
     public static void main(String[] args) throws Exception {
         Path bd = args.length > 0 ? Path.of(args[0]) : Files.createTempFile("hotel", ".db");
         AtomicReference<LocalDate> hoy = new AtomicReference<>(LocalDate.now());
@@ -27,6 +33,12 @@ public final class DemoModelo {
 
             // Suscripción con clase anónima (la UI usaría Platform.runLater / invokeLater aquí).
             g.suscribir(new OyenteEvento() {
+
+                /**
+                 * Muestra en consola los eventos recibidos.
+                 *
+                 * @param e evento generado por el hotel
+                 */
                 @Override
                 public void notificar(Evento e) {
                     System.out.println("   evento " + e + " [" + Thread.currentThread().getName() + "]");

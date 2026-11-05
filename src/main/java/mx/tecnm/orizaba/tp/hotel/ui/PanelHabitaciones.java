@@ -6,6 +6,7 @@ import java.awt.*;
 import mx.tecnm.orizaba.tp.hotel.servicio.Hotel;
 import mx.tecnm.orizaba.tp.hotel.modelo.Habitacion;
 
+/** Panel para consultar y administrar las habitaciones del hotel. */
 public class PanelHabitaciones extends JPanel {
     private final Hotel hotel;
 
@@ -15,17 +16,43 @@ public class PanelHabitaciones extends JPanel {
     // Modelo que administra las filas y columnas de la tabla.
     private final DefaultTableModel modeloTabla;
 
+    /**
+     * Construye el panel de gestión de habitaciones.
+     *
+     * @param hotel servicio utilizado para administrar habitaciones
+     */
     public PanelHabitaciones(Hotel hotel) {
         this.hotel = hotel;
-        setLayout(new BorderLayout(15, 15));
-        setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        // ===== ESTILO GENERAL =====
 
+        setBackground(new Color(34, 39, 46));
+        setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(35, 35, 30, 35));
         // ===== TÍTULO =====
 
-        JLabel titulo = new JLabel("Gestión de Habitaciones");
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        // ===== ENCABEZADO =====
 
-        add(titulo, BorderLayout.NORTH);
+        JPanel encabezado = new JPanel();
+        encabezado.setLayout(new BoxLayout(encabezado, BoxLayout.Y_AXIS));
+        encabezado.setBackground(new Color(34, 39, 46));
+
+        JLabel titulo = new JLabel("Gestión de Habitaciones");
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        titulo.setForeground(Color.WHITE);
+        titulo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel subtitulo = new JLabel(
+                "Administra las habitaciones y sus tarifas"
+        );
+        subtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        subtitulo.setForeground(new Color(170, 190, 215));
+        subtitulo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        encabezado.add(titulo);
+        encabezado.add(Box.createVerticalStrut(10));
+        encabezado.add(subtitulo);
+
+        add(encabezado, BorderLayout.NORTH);
 
         // ===== TABLA =====
         String[] columnas = {
@@ -35,9 +62,15 @@ public class PanelHabitaciones extends JPanel {
                 "Precio base"
         };
 
-        // Creamos una tabla que no permita editar directamente las celdas.
         modeloTabla = new DefaultTableModel(columnas, 0) {
 
+            /**
+             * Impide modificar las habitaciones directamente desde la tabla.
+             *
+             * @param fila índice de la fila
+             * @param columna índice de la columna
+             * @return false porque las celdas no son editables
+             */
             @Override
             public boolean isCellEditable(int fila, int columna) {
                 return false;
@@ -45,6 +78,41 @@ public class PanelHabitaciones extends JPanel {
         };
 
         tablaHabitaciones = new JTable(modeloTabla);
+        // ===== ESTILO DE LA TABLA =====
+
+// Fondo de las filas.
+        tablaHabitaciones.setBackground(new Color(44, 52, 64));
+
+// Color del texto.
+        tablaHabitaciones.setForeground(Color.WHITE);
+
+// Color de la fila seleccionada.
+        tablaHabitaciones.setSelectionBackground(new Color(55, 105, 170));
+        tablaHabitaciones.setSelectionForeground(Color.WHITE);
+
+// Altura de las filas.
+        tablaHabitaciones.setRowHeight(42);
+
+// Quitamos las líneas verticales y horizontales.
+        tablaHabitaciones.setShowGrid(false);
+
+// Encabezados.
+        tablaHabitaciones.getTableHeader().setBackground(
+                new Color(36, 45, 58)
+        );
+
+        tablaHabitaciones.getTableHeader().setForeground(
+                new Color(170, 200, 240)
+        );
+
+        tablaHabitaciones.getTableHeader().setFont(
+                new Font("Segoe UI", Font.BOLD, 14)
+        );
+
+        tablaHabitaciones.getTableHeader().setPreferredSize(
+                new Dimension(0, 45)
+        );
+
         // Ajusta la altura de las filas.
         tablaHabitaciones.setRowHeight(30);
         // selecciona una fila completa.
@@ -57,7 +125,11 @@ public class PanelHabitaciones extends JPanel {
 
         // ===== BOTONES =====
 
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel panelBotones = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 12, 10)
+        );
+
+        panelBotones.setBackground(new Color(34, 39, 46));
 
         JButton btnAgregar = new JButton("Agregar");
         // Cuando el usuario presione Agregar, abriremos un formulario.
@@ -68,6 +140,26 @@ public class PanelHabitaciones extends JPanel {
         btnEliminar.addActionListener(e -> eliminarHabitacion());
         JButton btnActualizar = new JButton("Actualizar");
         btnActualizar.addActionListener(e -> cargarHabitaciones());
+
+        // ===== ESTILO DE LOS BOTONES =====
+
+        JButton[] botones = {
+                btnAgregar, btnEditar, btnEliminar, btnActualizar
+        };
+
+        for (JButton boton : botones) {
+            boton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            boton.setPreferredSize(new Dimension(120, 40));
+            boton.setFocusPainted(false);
+        }
+
+// Destacamos la acción principal.
+        btnAgregar.setBackground(new Color(50, 115, 200));
+        btnAgregar.setForeground(Color.WHITE);
+
+// Destacamos la acción de eliminación.
+        btnEliminar.setBackground(new Color(155, 60, 70));
+        btnEliminar.setForeground(Color.WHITE);
 
         panelBotones.add(btnAgregar);
         panelBotones.add(btnEditar);

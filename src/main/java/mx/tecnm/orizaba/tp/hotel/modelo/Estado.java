@@ -13,6 +13,7 @@ public enum Estado {
         this.etiqueta = etiqueta;
     }
 
+    /** @return nombre descriptivo del estado */
     public String etiqueta() {
         return etiqueta;
     }
@@ -32,10 +33,20 @@ public enum Estado {
         //throw new UnsupportedOperationException("TODO E07");
     }
 
+    /**
+     * Indica si el estado es final.
+     *
+     * @return true si la reservación está cerrada o cancelada
+     */
     public boolean esTerminal() {
         return this == CERRADA || this == CANCELADA;
     }
 
+    /**
+     * Devuelve la etiqueta del estado.
+     *
+     * @return nombre descriptivo del estado
+     */
     @Override
     public String toString() {
         return etiqueta;

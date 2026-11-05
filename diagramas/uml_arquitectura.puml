@@ -1,0 +1,61 @@
+@startuml
+title P5 Hotel - Servicio, persistencia, eventos y concurrencia
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+package servicio {
+class Hotel <<AutoCloseable>>
+class "Hotel.MonitorSalidas" as Monitor <<inner>>
+Hotel +-- Monitor
+}
+package concurrencia {
+abstract class TareaPeriodica
+interface Runnable
+TareaPeriodica ..|> Runnable
+Monitor --|> TareaPeriodica
+}
+package persistencia {
+interface "Repositorio<T,K>" as Repositorio {
+ +guardar(entidad : T) : void
+ +buscar(clave : K) : Optional<T>
+ +todos() : List<T>
+ +eliminar(clave : K) : boolean
+ +existe(clave : K) : boolean
+ +guardarTodos(entidades : Iterable) : void
+}
+interface "Repositorio.MapeadorFila<R>" as MapeadorFila
+class ConexionSQLite <<AutoCloseable>>
+interface "ConexionSQLite.TrabajoSQL<R>" as TrabajoSQL
+class RepositorioHabitacionSQLite
+class RepositorioHuespedSQLite
+class RepositorioReservacionSQLite
+class Respaldo
+class PersistenciaException
+Repositorio +-- MapeadorFila
+ConexionSQLite +-- TrabajoSQL
+RepositorioHabitacionSQLite ..|> Repositorio
+RepositorioHuespedSQLite ..|> Repositorio
+RepositorioReservacionSQLite ..|> Repositorio
+}
+package eventos {
+class Evento <<record>> {
+ +tipo() : TipoEvento
+ +mensaje() : String
+ +instante() : LocalDateTime
+}
+enum TipoEvento
+interface OyenteEvento
+Evento --> TipoEvento
+OyenteEvento ..> Evento
+}
+package funcional {
+interface FabricaElemento
+interface Regla
+class Reglas
+}
+Hotel --> ConexionSQLite
+Hotel ..> Repositorio
+Hotel o-- OyenteEvento
+Hotel ..> Evento
+Hotel ..> FabricaElemento
+@enduml

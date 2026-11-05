@@ -12,12 +12,24 @@ public final class Reglas {
         throw new AssertionError("No instanciable");
     }
 
+    /**
+     * Crea una regla para filtrar habitaciones por precio base.
+     *
+     * @param maximo precio máximo permitido
+     * @return regla que acepta habitaciones con precio igual o menor al máximo
+     */
     public static Regla<Habitacion> precioHasta(double maximo) {
         // TODO E11: Lambda que acepta los elementos cuyo precioBase() sea menor o igual que maximo.
         return habitacion -> habitacion.precioBase() <= maximo;
         //throw new UnsupportedOperationException("TODO E11");
     }
 
+    /**
+     * Crea una regla para buscar habitaciones por su nombre.
+     *
+     * @param texto texto que se desea buscar
+     * @return regla que comprueba si el nombre contiene el texto
+     */
     public static Regla<Habitacion> nombreContiene(String texto) {
         // TODO E11: Lambda insensible a mayúsculas/minúsculas sobre nombre().
         // Preparar el texto buscado en minúsculas.

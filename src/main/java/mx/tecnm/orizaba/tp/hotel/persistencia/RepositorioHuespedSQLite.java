@@ -17,10 +17,20 @@ public class RepositorioHuespedSQLite implements Repositorio<Huesped, Integer> {
     private final MapeadorFila<Huesped> mapeador = rs -> new Huesped(rs.getInt("id"),
             rs.getString("nombre"), rs.getString("correo"), Nivel.valueOf(rs.getString("nivel")));
 
+    /**
+     * Construye el repositorio de huéspedes.
+     *
+     * @param bd conexión SQLite utilizada para las operaciones
+     */
     public RepositorioHuespedSQLite(ConexionSQLite bd) {
         this.bd = bd;
     }
 
+    /**
+     * Inserta o actualiza los datos de un huésped en SQLite.
+     *
+     * @param a huésped que se desea guardar
+     */
     @Override
     public void guardar(Huesped a) {
         // TODO E13: Upsert por id con PreparedStatement.
@@ -46,6 +56,12 @@ public class RepositorioHuespedSQLite implements Repositorio<Huesped, Integer> {
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Busca un huésped mediante su identificador.
+     *
+     * @param id identificador del huésped
+     * @return Optional con el huésped, si existe
+     */
     @Override
     public Optional<Huesped> buscar(Integer id) {
         // TODO E13: SELECT por id.
@@ -66,6 +82,11 @@ public class RepositorioHuespedSQLite implements Repositorio<Huesped, Integer> {
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Recupera todos los huéspedes ordenados por identificador.
+     *
+     * @return lista de huéspedes almacenados
+     */
     @Override
     public List<Huesped> todos() {
         // TODO E13: SELECT ordenado por id.
@@ -87,6 +108,12 @@ public class RepositorioHuespedSQLite implements Repositorio<Huesped, Integer> {
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Elimina un huésped de la base de datos.
+     *
+     * @param id identificador del huésped
+     * @return true si se eliminó el huésped
+     */
     @Override
     public boolean eliminar(Integer id) {
         // TODO E13: DELETE por id.

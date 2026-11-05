@@ -1,0 +1,34 @@
+@startuml
+title P5 Hotel - Interfaz grafica Swing
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+package ui {
+class VentanaPrincipal
+class PanelHabitaciones
+class PanelHuespedes
+class PanelReservaciones
+class PanelReportes
+class PanelEventos
+}
+class JFrame <<Swing>>
+class JPanel <<Swing>>
+class Hotel <<fachada>>
+VentanaPrincipal --|> JFrame
+PanelHabitaciones --|> JPanel
+PanelHuespedes --|> JPanel
+PanelReservaciones --|> JPanel
+PanelReportes --|> JPanel
+PanelEventos --|> JPanel
+VentanaPrincipal --> Hotel
+VentanaPrincipal ..> PanelHabitaciones : crea
+VentanaPrincipal ..> PanelHuespedes : crea
+VentanaPrincipal ..> PanelReservaciones : crea
+VentanaPrincipal ..> PanelReportes : crea
+VentanaPrincipal ..> PanelEventos : crea
+PanelHabitaciones ..> Hotel
+PanelHuespedes ..> Hotel
+PanelReservaciones ..> Hotel
+PanelReportes ..> Hotel
+PanelEventos ..> Hotel
+@enduml

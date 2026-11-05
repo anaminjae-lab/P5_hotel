@@ -1,0 +1,53 @@
+@startuml
+title P5 Hotel - Modelo de objetos
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+package modelo {
+interface Reservable
+interface ConVista
+interface Accesible
+abstract class Habitacion <<sealed>>
+class "Habitacion.Sencilla" as Sencilla <<static final>>
+class "Habitacion.Doble" as Doble <<static final>>
+class "Habitacion.Suite" as Suite <<static final>>
+class NumeroHabitacion <<record>> {
+  +prefijo() : String
+  +numero() : int
+}
+class Huesped <<Externalizable>>
+enum Nivel
+enum Estado
+class Reservacion {
+  +agregar(elemento : Habitacion, unidades : int) : Linea
+  +total() : double
+}
+class "Reservacion.Linea" as Linea <<inner>>
+class Inventario {
+  +agregar(nuevos : Habitacion...) : void
+  +buscar(clave : NumeroHabitacion) : Optional
+}
+class "Inventario.Iterador" as Iterador <<private inner>>
+interface "Iterable<Habitacion>" as IterableHabitacion
+interface "Iterator<Habitacion>" as IteratorHabitacion
+class ReglaNegocioException
+Habitacion ..|> Reservable
+Sencilla --|> Habitacion
+Doble --|> Habitacion
+Suite --|> Habitacion
+Sencilla ..|> ConVista
+Doble ..|> Accesible
+Suite ..|> ConVista
+Suite ..|> Accesible
+Habitacion --> NumeroHabitacion
+Huesped --> Nivel
+Reservacion --> Estado
+Reservacion --> Huesped
+Reservacion "1" *-- "0..*" Linea : contiene
+Linea --> Habitacion
+Inventario o-- "0..*" Habitacion
+Inventario +-- Iterador
+Inventario ..|> IterableHabitacion
+Iterador ..|> IteratorHabitacion
+}
+@enduml

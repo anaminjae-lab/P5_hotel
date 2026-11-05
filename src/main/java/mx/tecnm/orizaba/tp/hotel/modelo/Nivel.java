@@ -17,10 +17,12 @@ public enum Nivel {
         this.descuento = descuento;
     }
 
+    /** @return nombre descriptivo del nivel */
     public String etiqueta() {
         return etiqueta;
     }
 
+    /** @return porcentaje de descuento expresado como decimal */
     public double descuento() {
         return descuento;
     }
@@ -34,6 +36,11 @@ public enum Nivel {
       //  throw new UnsupportedOperationException("TODO E06");
     }
 
+    /**
+     * Devuelve la etiqueta del nivel.
+     *
+     * @return nombre descriptivo del nivel
+     */
     @Override
     public String toString() {
         return etiqueta;

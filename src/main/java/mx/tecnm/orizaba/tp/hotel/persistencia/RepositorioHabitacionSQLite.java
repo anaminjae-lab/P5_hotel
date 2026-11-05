@@ -42,6 +42,11 @@ public class RepositorioHabitacionSQLite implements Repositorio<Habitacion, Nume
                 rs.getDouble("precio_base"), rs.getString("atributo"));
     };
 
+    /**
+     * Construye el repositorio de habitaciones.
+     *
+     * @param bd conexión SQLite utilizada para las operaciones
+     */
     public RepositorioHabitacionSQLite(ConexionSQLite bd) {
         this.bd = bd;
     }
@@ -61,6 +66,11 @@ public class RepositorioHabitacionSQLite implements Repositorio<Habitacion, Nume
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Inserta o actualiza una habitación en SQLite.
+     *
+     * @param e habitación que se desea guardar
+     */
     @Override
     public void guardar(Habitacion e) {
         // TODO E13: INSERT ... ON CONFLICT(clave) DO UPDATE ... con PreparedStatement.
@@ -93,6 +103,12 @@ public class RepositorioHabitacionSQLite implements Repositorio<Habitacion, Nume
        // throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Busca una habitación mediante su clave.
+     *
+     * @param clave identificador de la habitación
+     * @return Optional con la habitación, si existe
+     */
     @Override
     public Optional<Habitacion> buscar(NumeroHabitacion clave) {
         // TODO E13: SELECT por clave; mapear con mapeador si hay fila.
@@ -118,6 +134,11 @@ public class RepositorioHabitacionSQLite implements Repositorio<Habitacion, Nume
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Recupera todas las habitaciones ordenadas por clave.
+     *
+     * @return lista de habitaciones almacenadas
+     */
     @Override
     public List<Habitacion> todos() {
         // TODO E13: SELECT ordenado por clave; mapear cada fila.
@@ -139,6 +160,12 @@ public class RepositorioHabitacionSQLite implements Repositorio<Habitacion, Nume
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Elimina una habitación de SQLite.
+     *
+     * @param clave identificador de la habitación
+     * @return true si se eliminó alguna fila
+     */
     @Override
     public boolean eliminar(NumeroHabitacion clave) {
         // TODO E13: DELETE por clave; devolver si se afectó alguna fila.

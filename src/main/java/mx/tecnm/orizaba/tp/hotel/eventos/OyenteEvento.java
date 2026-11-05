@@ -10,9 +10,19 @@ package mx.tecnm.orizaba.tp.hotel.eventos;
 @FunctionalInterface
 public interface OyenteEvento {
 
+    /**
+     * Recibe una notificación del hotel.
+     *
+     * @param evento evento publicado
+     */
     void notificar(Evento evento);
 
-    /** Composición secuencial de oyentes (función de orden superior). */
+    /**
+     * Combina dos oyentes para notificarlos secuencialmente.
+     *
+     * @param siguiente oyente que recibirá la segunda notificación
+     * @return oyente compuesto
+     */
     default OyenteEvento luego(OyenteEvento siguiente) {
         // TODO E11: Devolver una lambda que notifique primero a this y después a siguiente.
         return evento -> {

@@ -11,6 +11,7 @@ import java.awt.*;
 import java.util.DoubleSummaryStatistics;
 import java.util.Map;
 
+/** Panel que presenta los reportes y estadísticas del hotel. */
 public class PanelReportes extends JPanel {
 
     private final Hotel hotel;
@@ -26,6 +27,11 @@ public class PanelReportes extends JPanel {
     private static final Color TEXTO = new Color(235, 238, 242);
     private static final Color SECUNDARIO = new Color(165, 175, 185);
 
+    /**
+     * Construye el panel de reportes.
+     *
+     * @param hotel servicio del que se obtienen los datos
+     */
     public PanelReportes(Hotel hotel) {
 
         this.hotel = hotel;

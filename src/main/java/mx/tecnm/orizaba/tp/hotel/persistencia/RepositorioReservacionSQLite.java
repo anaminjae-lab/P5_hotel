@@ -25,6 +25,13 @@ public class RepositorioReservacionSQLite implements Repositorio<Reservacion, In
     private final Repositorio<Huesped, Integer> huespeds;
     private final Repositorio<Habitacion, NumeroHabitacion> elementos;
 
+    /**
+     * Construye el repositorio de reservaciones.
+     *
+     * @param bd conexión SQLite
+     * @param huespeds repositorio de huéspedes
+     * @param elementos repositorio de habitaciones
+     */
     public RepositorioReservacionSQLite(ConexionSQLite bd, Repositorio<Huesped, Integer> huespeds,
                          Repositorio<Habitacion, NumeroHabitacion> elementos) {
         this.bd = bd;
@@ -32,6 +39,11 @@ public class RepositorioReservacionSQLite implements Repositorio<Reservacion, In
         this.elementos = elementos;
     }
 
+    /**
+     * Guarda una reservación y sus líneas en una sola transacción.
+     *
+     * @param t reservación que se desea guardar
+     */
     @Override
     public void guardar(Reservacion t) {
         // TODO E13: En bd.enTransaccion: upsert del encabezado, borrar sus líneas e insertarlas en lote (addBatch/executeBatch).
@@ -85,6 +97,12 @@ public class RepositorioReservacionSQLite implements Repositorio<Reservacion, In
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Busca una reservación y reconstruye sus líneas.
+     *
+     * @param id identificador de la reservación
+     * @return Optional con la reservación, si existe
+     */
     @Override
     public Optional<Reservacion> buscar(Integer id) {
         // TODO E13: Leer el encabezado, resolver el actor y los elementos con sus repositorios, agregar líneas y restaurar el estado.
@@ -153,6 +171,11 @@ public class RepositorioReservacionSQLite implements Repositorio<Reservacion, In
        // throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Recupera todas las reservaciones ordenadas por identificador.
+     *
+     * @return lista de reservaciones almacenadas
+     */
     @Override
     public List<Reservacion> todos() {
         // TODO E13: Recorrer los ids ordenados y reconstruir cada registro.
@@ -186,6 +209,12 @@ public class RepositorioReservacionSQLite implements Repositorio<Reservacion, In
         //throw new UnsupportedOperationException("TODO E13");
     }
 
+    /**
+     * Elimina una reservación de la base de datos.
+     *
+     * @param id identificador de la reservación
+     * @return true si se eliminó la reservación
+     */
     @Override
     public boolean eliminar(Integer id) {
         // TODO E13: DELETE del encabezado (las líneas se eliminan en cascada).

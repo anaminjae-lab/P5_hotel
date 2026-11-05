@@ -25,6 +25,14 @@ public class Huesped implements Externalizable {
     public Huesped() {
     }
 
+    /**
+     * Inicializa un huésped validando sus datos.
+     *
+     * @param id identificador positivo del huésped
+     * @param nombre nombre del huésped
+     * @param correo correo electrónico
+     * @param nivel nivel asignado
+     */
     public Huesped(int id, String nombre, String correo, Nivel nivel) {
         // TODO E06: Validar id > 0 y asignar nombre, correo y nivel mediante sus setters.
         if (id <= 0) {
@@ -45,22 +53,31 @@ public class Huesped implements Externalizable {
         this(id, nombre, correo, Nivel.values()[0]);
     }
 
+    /** @return identificador del huésped */
     public int id() {
         return id;
     }
 
+    /** @return nombre del huésped */
     public String nombre() {
         return nombre;
     }
 
+    /** @return correo electrónico del huésped */
     public String correo() {
         return correo;
     }
 
+    /** @return nivel del huésped */
     public Nivel nivel() {
         return nivel;
     }
 
+    /**
+     * Actualiza el nombre del huésped.
+     *
+     * @param nombre nombre no nulo ni vacío
+     */
     public final void setNombre(String nombre) {
         // TODO E06: Rechazar nombre nulo o en blanco.
         if (nombre == null || nombre.isBlank()) {
@@ -72,6 +89,11 @@ public class Huesped implements Externalizable {
        // throw new UnsupportedOperationException("TODO E06");
     }
 
+    /**
+     * Actualiza y normaliza el correo electrónico.
+     *
+     * @param correo correo con formato válido
+     */
     public final void setCorreo(String correo) {
         // TODO E06: Validar el correo con el patrón CORREO y guardarlo en minúsculas.
         if (correo == null || !CORREO.matcher(correo).matches()) {
@@ -83,10 +105,21 @@ public class Huesped implements Externalizable {
         //throw new UnsupportedOperationException("TODO E06");
     }
 
+    /**
+     * Asigna el nivel del huésped.
+     *
+     * @param nivel nivel no nulo
+     */
     public final void setNivel(Nivel nivel) {
         this.nivel = Objects.requireNonNull(nivel, "nivel");
     }
 
+    /**
+     * Escribe los datos del huésped en una salida de objetos.
+     *
+     * @param salida destino de los datos
+     * @throws IOException si ocurre un error de escritura
+     */
     @Override
     public void writeExternal(ObjectOutput salida) throws IOException {
         salida.writeInt(id);
@@ -97,6 +130,12 @@ public class Huesped implements Externalizable {
         //throw new UnsupportedOperationException("TODO E14");
     }
 
+    /**
+     * Reconstruye los datos del huésped desde una entrada de objetos.
+     *
+     * @param entrada origen de los datos
+     * @throws IOException si ocurre un error de lectura
+     */
     @Override
     public void readExternal(ObjectInput entrada) throws IOException {
         // TODO E14: Leer en el mismo orden en que se escribió y reconstruir el nivel con Nivel.valueOf.
@@ -115,16 +154,32 @@ public class Huesped implements Externalizable {
         //throw new UnsupportedOperationException("TODO E14");
     }
 
+    /**
+     * Compara huéspedes mediante su identificador.
+     *
+     * @param o objeto que se compara
+     * @return true si representan al mismo huésped
+     */
     @Override
     public boolean equals(Object o) {
         return this == o || (o instanceof Huesped otro && id == otro.id);
     }
 
+    /**
+     * Calcula el código hash del identificador.
+     *
+     * @return código hash del huésped
+     */
     @Override
     public int hashCode() {
         return Integer.hashCode(id);
     }
 
+    /**
+     * Devuelve una representación textual del huésped.
+     *
+     * @return descripción del huésped
+     */
     @Override
     public String toString() {
         return String.format("%s #%d %s <%s> (%s)", "Huesped", id, nombre, correo, nivel);

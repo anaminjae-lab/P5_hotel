@@ -16,6 +16,12 @@ public abstract class TareaPeriodica implements Runnable {
     private Thread hilo;
     private volatile long ciclos;
 
+    /**
+     * Construye una tarea que se ejecutará periódicamente.
+     *
+     * @param periodoMs intervalo entre ciclos en milisegundos
+     * @throws IllegalArgumentException si el periodo es menor o igual a cero
+     */
     protected TareaPeriodica(long periodoMs) {
         if (periodoMs <= 0) {
             throw new IllegalArgumentException("Periodo inválido: " + periodoMs);
@@ -23,7 +29,12 @@ public abstract class TareaPeriodica implements Runnable {
         this.periodoMs = periodoMs;
     }
 
-    /** Arranca el hilo (demonio) con el nombre indicado. */
+    /**
+     * Inicia la tarea en un hilo demonio con el nombre indicado.
+     *
+     * @param nombreHilo nombre que tendrá el hilo
+     * @throws IllegalStateException si la tarea ya está activa
+     */
     public final synchronized void iniciar(String nombreHilo) {
         // TODO E12: Si ya está activa lanzar IllegalStateException; crear new Thread(this, nombreHilo), marcarlo demonio, activar y start().
         // Impedir que iniciemos otra vez una tarea marcada como activa.
@@ -42,7 +53,11 @@ public abstract class TareaPeriodica implements Runnable {
         //throw new UnsupportedOperationException("TODO E12");
     }
 
-    /** Solicita la detención y espera a que el hilo termine. */
+    /**
+     * Solicita la detención de la tarea y espera a que termine el hilo.
+     *
+     * @throws InterruptedException si se interrumpe la espera
+     */
     public final void detener() throws InterruptedException {
         // TODO E12: Bajar la bandera, interrumpir el hilo y esperar con join() (si existe).
         // Solicitar que la tarea deje de repetir su trabajo.
@@ -57,14 +72,29 @@ public abstract class TareaPeriodica implements Runnable {
         //throw new UnsupportedOperationException("TODO E12");
     }
 
+    /**
+     * Consulta si la tarea está activa.
+     *
+     * @return true si la tarea continúa activa
+     */
     public final boolean activa() {
         return activa;
     }
 
+    /**
+     * Consulta el número de ciclos ejecutados.
+     *
+     * @return cantidad de ciclos completados
+     */
     public final long ciclos() {
         return ciclos;
     }
 
+    /**
+     * Ejecuta periódicamente el trabajo mientras la tarea esté activa.
+     * Incrementa el contador de ciclos y espera el intervalo configurado.
+     * Si el hilo es interrumpido, restaura su estado de interrupción.
+     */
     @Override
     public final void run() {
         // TODO E12: Mientras activa: ejecutarCiclo(), incrementar ciclos y dormir periodoMs; ante InterruptedException restaurar la interrupción y salir.

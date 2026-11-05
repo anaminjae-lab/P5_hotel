@@ -65,18 +65,22 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
         //throw new UnsupportedOperationException("TODO E07");
     }
 
+    /** @return identificador de la reservación */
     public int id() {
         return id;
     }
 
+    /** @return huésped asociado a la reservación */
     public Huesped huesped() {
         return huesped;
     }
 
+    /** @return fecha de creación de la reservación */
     public LocalDate fecha() {
         return fecha;
     }
 
+    /** @return estado actual de la reservación */
     public synchronized Estado estado() {
         return estado;
     }
@@ -116,6 +120,11 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
        // throw new UnsupportedOperationException("TODO E07");
     }
 
+    /**
+     * Cambia el estado de la reservación si la transición es válida.
+     *
+     * @param destino nuevo estado de la reservación
+     */
     public synchronized void cambiarEstado(Estado destino) {
         // TODO E07: Validar la transición con permiteTransicionA y exigir al menos una línea para pasar a EN_CURSO.
         if (!estado.permiteTransicionA(destino)) {
@@ -132,14 +141,17 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
         //throw new UnsupportedOperationException("TODO E07");
     }
 
+    /** Inicia la estancia de una reservación abierta. */
     public void iniciar() {
         cambiarEstado(Estado.EN_CURSO);
     }
 
+    /** Cierra una reservación cuya estancia ha terminado. */
     public void cerrar() {
         cambiarEstado(Estado.CERRADA);
     }
 
+    /** Cancela una reservación cuando la transición está permitida. */
     public void cancelar() {
         cambiarEstado(Estado.CANCELADA);
     }
@@ -149,6 +161,11 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
         this.estado = Objects.requireNonNull(estado);
     }
 
+    /**
+     * Obtiene una copia no modificable de las líneas de la reservación.
+     *
+     * @return lista no modificable de líneas
+     */
     public synchronized List<Linea> lineas() {
         return Collections.unmodifiableList(new ArrayList<>(lineas));
     }
@@ -178,10 +195,21 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
 
         //throw new UnsupportedOperationException("TODO E08");
 
+    /**
+     * Calcula los días transcurridos desde la fecha de la reservación.
+     *
+     * @param hoy fecha utilizada para el cálculo
+     * @return cantidad de días transcurridos
+     */
     public long diasDesde(LocalDate hoy) {
         return ChronoUnit.DAYS.between(fecha, hoy);
     }
 
+    /**
+     * Permite recorrer las líneas de la reservación.
+     *
+     * @return iterador de las líneas
+     */
     @Override
     public Iterator<Linea> iterator() {
         return lineas().iterator();
@@ -191,6 +219,11 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
         return Math.round(v * 100.0) / 100.0;
     }
 
+    /**
+     * Devuelve una descripción de la reservación con su estado y total.
+     *
+     * @return representación textual de la reservación
+     */
     @Override
     public String toString() {
         return String.format("Reservacion #%d [%s] %s, %d línea(s), total $%.2f",
@@ -223,14 +256,17 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
            // throw new UnsupportedOperationException("TODO E07");
         }
 
+        /** @return habitación asociada a esta línea */
         public Habitacion elemento() {
             return elemento;
         }
 
+        /** @return cantidad de noches reservadas */
         public int unidades() {
             return unidades;
         }
 
+        /** @return costo de la habitación antes del descuento */
         public double subtotal() {
             return elemento.tarifa(unidades);
         }
@@ -243,10 +279,16 @@ public class Reservacion implements Iterable<Reservacion.Linea>, Serializable {
            // throw new UnsupportedOperationException("TODO E08");
         }
 
+        /** @return reservación a la que pertenece esta línea */
         public Reservacion contenedor() {
             return Reservacion.this;
         }
 
+        /**
+         * Devuelve la descripción de la línea y su importe.
+         *
+         * @return representación textual de la línea
+         */
         @Override
         public String toString() {
             return String.format("%s x %d noches = $%.2f", elemento.nombre(), unidades, importe());

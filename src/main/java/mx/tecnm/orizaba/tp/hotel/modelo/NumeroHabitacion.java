@@ -21,8 +21,12 @@ public record NumeroHabitacion(String prefijo, int numero) implements Comparable
         // Inicialización estática: se ejecuta una sola vez, al primer uso activo de la clase.
         SECUENCIAS = new ConcurrentHashMap<>();
     }
-
-
+    /**
+     * Valida los componentes de la clave de habitación.
+     *
+     * @throws IllegalArgumentException si el prefijo no tiene
+     *         tres letras mayúsculas o el número no es positivo
+     */
     public NumeroHabitacion {
         if(prefijo == null ||!prefijo.matches("[A-Z]{3}") || numero<=0 ) { //AGREGADO
             throw new IllegalArgumentException("NO VALIDO");//AGREGADO
@@ -31,7 +35,12 @@ public record NumeroHabitacion(String prefijo, int numero) implements Comparable
         //throw new UnsupportedOperationException("TODO E03");
     }
 
-    /** Genera la siguiente clave del prefijo indicado (operación atómica). */
+    /**
+     * Genera la siguiente clave disponible para un prefijo.
+     *
+     * @param prefijo tres letras mayúsculas del tipo de habitación
+     * @return nueva clave con número consecutivo
+     */
     public static NumeroHabitacion siguiente(String prefijo) {
         AtomicInteger secuencia = SECUENCIAS.computeIfAbsent(prefijo, p -> new AtomicInteger(0));
 
@@ -42,7 +51,11 @@ public record NumeroHabitacion(String prefijo, int numero) implements Comparable
         //throw new UnsupportedOperationException("TODO E03");
     }
 
-    /** Ajusta la secuencia para que nunca genere una clave ya existente (p. ej., tras leer la BD). */
+    /**
+     * Actualiza la secuencia para evitar repetir claves existentes.
+     *
+     * @param clave clave que debe registrarse
+     */
     public static void registrar(NumeroHabitacion clave) {
         String prefijo = clave.prefijo();
         int numero = clave.numero();
@@ -54,7 +67,13 @@ public record NumeroHabitacion(String prefijo, int numero) implements Comparable
         //throw new UnsupportedOperationException("TODO E03");
     }
 
-    /** Convierte un texto {@code ABC-0001} en una clave. */
+    /**
+     * Convierte una cadena de texto en una clave de habitación.
+     *
+     * @param texto clave con formato ABC-0001
+     * @return clave de habitación
+     * @throws IllegalArgumentException si el formato es inválido
+     */
     public static NumeroHabitacion parse(String texto) {
         if (texto == null || !texto.matches("[A-Z]{3}-\\d{4,}")) {
             throw new IllegalArgumentException("Formato de habitación inválido");
@@ -70,7 +89,12 @@ public record NumeroHabitacion(String prefijo, int numero) implements Comparable
 
        // throw new UnsupportedOperationException("TODO E03");
     }
-
+    /**
+     * Compara dos claves, primero por prefijo y después por número.
+     *
+     * @param otra clave con la que se compara
+     * @return valor negativo, cero o positivo según el orden
+     */
     @Override
     public int compareTo(NumeroHabitacion otra) {
         int comparacionPrefijos = prefijo.compareTo(otra.prefijo());
@@ -82,7 +106,11 @@ public record NumeroHabitacion(String prefijo, int numero) implements Comparable
         // TODO E03: Ordenar primero por prefijo y después por número.
         //throw new UnsupportedOperationException("TODO E03");
     }
-
+    /**
+     * Devuelve la clave con el formato ABC-0001.
+     *
+     * @return representación textual de la clave
+     */
     @Override
     public String toString() {
         return String.format("%s-%04d", prefijo, numero);

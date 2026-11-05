@@ -142,3 +142,16 @@ Permite consultar información estadística y reportes relacionados con la opera
 Panel para visualizar los eventos generados durante el funcionamiento del sistema.
 
 ![Monitor de eventos](Imagenes/Eventos.png)
+
+## Documentación Javadoc
+
+La documentación de las clases y métodos del sistema fue generada
+mediante Maven utilizando el comando:
+
+`mvn javadoc:javadoc`
+
+La documentación HTML está disponible en
+[docs/javadoc/index.html](docs/javadoc/index.html).
+
+Para consultarla, descarga el repositorio y abre
+`docs/javadoc/index.html` en tu navegador.

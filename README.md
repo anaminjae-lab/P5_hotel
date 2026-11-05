@@ -90,7 +90,8 @@ Después, abre `target/reports/apidocs/index.html` en el navegador (la ubicació
 
 ## Diagramas y documentación adicional
 
-- `diagramas/modelo_actualizado.png`: diagrama UML actualizado del modelo.
+- `diagramas/modelo_actualizado.puml`: diagrama UML actualizado del modelo.
+![Pantalla de inicio](diagramas/modelo_actualizado.png)
 - `diagramas/modelo.puml`: diagrama incluido originalmente en el proyecto.
 - `BITACORA_IA.md`: registro del uso de herramientas de inteligencia artificial durante el desarrollo.
 - `README.md`: guía de instalación, ejecución y organización del proyecto.

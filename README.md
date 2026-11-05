@@ -102,3 +102,43 @@ Se emplean **encapsulamiento, herencia, polimorfismo, interfaces, clases interna
 ## Origen
 
 Proyecto académico desarrollado a partir del esqueleto **«Miniproyecto 5: Sistema de Reservaciones de un Hotel»**. Para los requisitos de evaluación y la especificación completa, consultar el documento proporcionado por el docente.
+
+## Capturas de pantalla del sistema
+
+El Sistema de Reservaciones de un Hotel cuenta con una interfaz gráfica desarrollada en Java Swing, que permite gestionar habitaciones, huéspedes y reservaciones, además de consultar reportes y monitorear eventos del sistema.
+
+### Pantalla de inicio
+
+Ventana principal del sistema, desde la cual se puede acceder a los diferentes módulos.
+
+![Pantalla de inicio](Imagenes/Inicio.png)
+
+### Gestión de habitaciones
+
+Permite visualizar y administrar las habitaciones registradas, incluyendo sus características y precios.
+
+![Gestión de habitaciones](Imagenes/Habitaciones.png)
+
+### Gestión de huéspedes
+
+Interfaz para consultar y administrar la información de los huéspedes del hotel.
+
+![Gestión de huéspedes](Imagenes/Huespedes.png)
+
+### Gestión de reservaciones
+
+Módulo para consultar y gestionar las reservaciones realizadas en el hotel.
+
+![Gestión de reservaciones](Imagenes/Reservaciones.png)
+
+### Reportes del sistema
+
+Permite consultar información estadística y reportes relacionados con la operación del hotel.
+
+![Reportes del sistema](Imagenes/Reportes.png)
+
+### Monitor de eventos
+
+Panel para visualizar los eventos generados durante el funcionamiento del sistema.
+
+![Monitor de eventos](Imagenes/Eventos.png)
